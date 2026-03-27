@@ -1,12 +1,23 @@
 import Course from "../models/Course.js";
-import { v2 as cloudinary } from "cloudinary";
 import { Purchase } from "../models/Purchase.js";
 import User from "../models/User.js";
+
+import jwt from "jsonwebtoken";
 
 // Update role to educator
 export const updateRoleToEducator = async (req, res) => {
   try {
-    res.json({ success: true, message: "Role updated to educator" });
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    
+    user.role = "educator";
+    await user.save();
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRY || "7d",
+    });
+
+    res.json({ success: true, message: "Role updated to educator", token });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
@@ -17,17 +28,14 @@ export const addCourse = async (req, res) => {
   try {
     const { courseData } = req.body;
     const imageFile = req.file;
-    const educatorId = req.body.userId || "test_educator_001";
-
-    if (!imageFile) {
-      return res.json({ success: false, message: "Thumbnail Not Attached" });
-    }
+    const educatorId = req.user.id;
 
     const parsedCourseData = await JSON.parse(courseData);
     parsedCourseData.educator = educatorId;
     const newCourse = await Course.create(parsedCourseData);
-    const imageUpload = await cloudinary.uploader.upload(imageFile.path);
-    newCourse.courseThumbnail = imageUpload.secure_url;
+    
+    // Cloudinary upload removed - BLOB implementation planned for later
+    
     await newCourse.save();
 
     res.json({ success: true, message: "Course Added" });
@@ -39,7 +47,7 @@ export const addCourse = async (req, res) => {
 // Get Educator Courses
 export const getEducatorCourses = async (req, res) => {
   try {
-    const educator = req.body.userId || "test_educator_001";
+    const educator = req.user.id;
     const courses = await Course.find({ educator });
     res.json({ success: true, courses });
   } catch (error) {
@@ -50,7 +58,7 @@ export const getEducatorCourses = async (req, res) => {
 // Get Educator Dashboard Data (Total Earning, Enrolled Students, No. of Courses)
 export const educatorDashboard = async (req, res) => {
   try {
-    const educator = req.body.userId || "test_educator_001";
+    const educator = req.user.id;
     const courses = await Course.find({ educator });
     const totalCourses = courses.length;
 
@@ -101,7 +109,7 @@ export const educatorDashboard = async (req, res) => {
 // Get Enrolled Studentd Data with Purchase Data
 export const getEnrolledStudentsData = async (req, res) => {
   try {
-    const educator = req.body.userId || "test_educator_001";
+    const educator = req.user.id;
     const courses = await Course.find({ educator });
     const courseIds = courses.map((course) => course._id);
 

@@ -17,10 +17,10 @@ const CoursesList = () => {
 
       input
         ? setFilteredCourses(
-            tempCourses.filter((item) =>
-              item.courseTitle.toLowerCase().includes(input.toLowerCase())
-            )
+          tempCourses.filter((item) =>
+            item.courseTitle.toLowerCase().includes(input.toLowerCase())
           )
+        )
         : setFilteredCourses(tempCourses);
     }
   }, [allCourses, input]);

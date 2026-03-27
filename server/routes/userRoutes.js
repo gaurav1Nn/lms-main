@@ -1,4 +1,5 @@
 import express from "express";
+import { protect } from "../middlewares/authMiddleware.js";
 import {
   addUserRating,
   getUserCourseProgress,
@@ -9,6 +10,8 @@ import {
 } from "../controllers/userController.js";
 
 const userRouter = express.Router();
+
+userRouter.use(protect);
 
 userRouter.get("/data", getUserData);
 userRouter.get("/enrolled-courses", userEnrolledCourses);

@@ -8,17 +8,105 @@ export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
   const currency = import.meta.env.VITE_CURRENCY;
   const navigate = useNavigate();
 
-  // Hardcoded test user ID for local testing
-  const testUserId = "test_student_001";
+  // Auth State
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [userData, setUserData] = useState(null);
+  const isAuthenticated = !!token;
 
   const [allCourses, setAllCourses] = useState([]);
   const [isEducator, setIsEducator] = useState(false);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
-  const [userData, setUserData] = useState(null);
+
+  // Setup Axios defaults & interceptor
+  axios.defaults.withCredentials = true;
+
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common["Authorization"];
+    }
+  }, [token]);
+
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        
+        if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== backendUrl + "/api/auth/login" && originalRequest.url !== backendUrl + "/api/auth/register") {
+          originalRequest._retry = true;
+          try {
+            const { data } = await axios.post(backendUrl + "/api/auth/refresh");
+            if (data.success) {
+              setToken(data.accessToken);
+              localStorage.setItem("token", data.accessToken);
+              axios.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
+              originalRequest.headers["Authorization"] = `Bearer ${data.accessToken}`;
+              return axios(originalRequest);
+            }
+          } catch (refreshError) {
+            logout();
+            return Promise.reject(refreshError);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
+  }, []);
+
+  const login = async (email, password) => {
+    try {
+      const { data } = await axios.post(backendUrl + "/api/auth/login", { email, password });
+      if (data.success) {
+        localStorage.setItem("token", data.accessToken);
+        setToken(data.accessToken);
+        setUserData(data);
+        setIsEducator(data.role === "educator" || data.role === "admin");
+        toast.success("Logged in successfully");
+        navigate("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed");
+    }
+  };
+
+  const register = async (name, email, password) => {
+    try {
+      const { data } = await axios.post(backendUrl + "/api/auth/register", { name, email, password });
+      if (data.success) {
+        localStorage.setItem("token", data.accessToken);
+        setToken(data.accessToken);
+        setUserData(data);
+        setIsEducator(data.role === "educator" || data.role === "admin");
+        toast.success("Registered successfully");
+        navigate("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Registration failed");
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await axios.post(backendUrl + "/api/auth/logout");
+    } catch (error) {
+      console.log(error);
+    }
+    localStorage.removeItem("token");
+    setToken(null);
+    setUserData(null);
+    setIsEducator(false);
+    navigate("/login");
+  };
 
   // Fetch All Courses
   const fetchAllCourses = async () => {
@@ -37,18 +125,20 @@ export const AppContextProvider = (props) => {
 
   // Fetch UserData
   const fetchUserData = async () => {
+    if (!token) return;
     try {
-      const { data } = await axios.get(backendUrl + "/api/user/data", {
-        headers: { userId: testUserId },
-      });
+      const { data } = await axios.get(backendUrl + "/api/auth/me");
 
       if (data.success) {
         setUserData(data.user);
+        setIsEducator(data.user.role === "educator" || data.user.role === "admin");
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      if (error.response?.status !== 401) {
+        toast.error(error.message);
+      }
     }
   };
 
@@ -95,11 +185,9 @@ export const AppContextProvider = (props) => {
 
   // Fetch User Enrolled Courses
   const fetchUserEnrolledCourses = async () => {
+    if (!token) return;
     try {
-      const { data } = await axios.get(
-        backendUrl + "/api/user/enrolled-courses",
-        { headers: { userId: testUserId } }
-      );
+      const { data } = await axios.get(backendUrl + "/api/user/enrolled-courses");
 
       if (data.success) {
         setEnrolledCourses(data.enrolledCourses.reverse());
@@ -107,7 +195,9 @@ export const AppContextProvider = (props) => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message);
+      if (error.response?.status !== 401) {
+        toast.error(error.message);
+      }
     }
   };
 
@@ -116,9 +206,11 @@ export const AppContextProvider = (props) => {
   }, []);
 
   useEffect(() => {
-    fetchUserData();
-    fetchUserEnrolledCourses();
-  }, []);
+    if (token) {
+      fetchUserData();
+      fetchUserEnrolledCourses();
+    }
+  }, [token]);
 
   const value = {
     currency,
@@ -135,8 +227,12 @@ export const AppContextProvider = (props) => {
     backendUrl,
     userData,
     setUserData,
-    testUserId,
     fetchAllCourses,
+    token,
+    login,
+    register,
+    logout,
+    isAuthenticated,
   };
 
   return (

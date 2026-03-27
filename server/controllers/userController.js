@@ -7,7 +7,7 @@ import { CourseProgress } from "../models/CourseProgress.js";
 // Get User Data
 export const getUserData = async (req, res) => {
   try {
-    const userId = req.body.userId || "test_student_001";
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     if (!user) {
@@ -23,7 +23,7 @@ export const getUserData = async (req, res) => {
 // Users Enrolled Courses With Lecture Links
 export const userEnrolledCourses = async (req, res) => {
   try {
-    const userId = req.body.userId || "test_student_001";
+    const userId = req.user.id;
     const userData = await User.findById(userId).populate("enrolledCourses");
 
     res.json({ success: true, enrolledCourses: userData.enrolledCourses });
@@ -37,7 +37,7 @@ export const purchaseCourse = async (req, res) => {
   try {
     const { courseId } = req.body;
     const { origin } = req.headers;
-    const userId = req.body.userId || "test_student_001";
+    const userId = req.user.id;
     const userData = await User.findById(userId);
     const courseData = await Course.findById(courseId);
 
@@ -54,12 +54,36 @@ export const purchaseCourse = async (req, res) => {
       ).toFixed(2),
     };
 
-    const newPurchase = await Purchase.create(purchaseData);
+    let newPurchase = await Purchase.create(purchaseData);
+
+    // Bypass Stripe for free courses
+    if (newPurchase.amount === 0 || newPurchase.amount === "0.00") {
+      // Mark purchase as completed
+      newPurchase.status = "completed";
+      await newPurchase.save();
+
+      // Ensure course is not already in enrolledCourses before adding
+      if (!userData.enrolledCourses.includes(courseData._id)) {
+        userData.enrolledCourses.push(courseData._id);
+        await userData.save();
+      }
+
+      // Ensure user is not already in course enrolledStudents before adding
+      if (!courseData.enrolledStudents.includes(userId)) {
+        courseData.enrolledStudents.push(userId);
+        await courseData.save();
+      }
+
+      return res.json({
+        success: true,
+        session_url: `${origin}/loading/dashboard`,
+      });
+    }
 
     // Stripe Gateway Initialize
     const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    const currency = process.env.CURRENCY.toLowerCase();
+    const currency = (process.env.CURRENCY || 'usd').toLowerCase();
 
     // Creating line items for Stripe
     const line_items = [
@@ -76,7 +100,7 @@ export const purchaseCourse = async (req, res) => {
     ];
 
     const session = await stripeInstance.checkout.sessions.create({
-      success_url: `${origin}/loading/my-enrollments`,
+      success_url: `${origin}/loading/dashboard`,
       cancel_url: `${origin}/`,
       line_items: line_items,
       mode: "payment",
@@ -94,7 +118,7 @@ export const purchaseCourse = async (req, res) => {
 // Update User Course Progress
 export const updateUserCourseProgress = async (req, res) => {
   try {
-    const userId = req.body.userId || "test_student_001";
+    const userId = req.user.id;
     const { courseId, lectureId } = req.body;
     const progressData = await CourseProgress.findOne({ userId, courseId });
 
@@ -122,7 +146,7 @@ export const updateUserCourseProgress = async (req, res) => {
 // Get User Course Progress
 export const getUserCourseProgress = async (req, res) => {
   try {
-    const userId = req.body.userId || "test_student_001";
+    const userId = req.user.id;
     const { courseId } = req.body;
     const progressData = await CourseProgress.findOne({ userId, courseId });
 
@@ -134,7 +158,7 @@ export const getUserCourseProgress = async (req, res) => {
 
 // Add User Ratings to Course
 export const addUserRating = async (req, res) => {
-  const userId = req.body.userId || "test_student_001";
+  const userId = req.user.id;
   const { courseId, rating } = req.body;
 
   if (!courseId || !userId || !rating || rating < 1 || rating > 5) {

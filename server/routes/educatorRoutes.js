@@ -7,23 +7,24 @@ import {
   updateRoleToEducator,
 } from "../controllers/educatorController.js";
 import upload from "../configs/multer.js";
-import { protectEducator } from "../middlewares/authMiddleware.js";
+import { protect, educatorOnly } from "../middlewares/authMiddleware.js";
 
 const educatorRouter = express.Router();
 
 // Add Educator Role
-educatorRouter.get("/update-role", updateRoleToEducator);
+educatorRouter.get("/update-role", protect, updateRoleToEducator);
+
+educatorRouter.use(protect, educatorOnly);
+
 educatorRouter.post(
   "/add-course",
   upload.single("image"),
-  protectEducator,
   addCourse
 );
-educatorRouter.get("/courses", protectEducator, getEducatorCourses);
-educatorRouter.get("/dashboard", protectEducator, educatorDashboard);
+educatorRouter.get("/courses", getEducatorCourses);
+educatorRouter.get("/dashboard", educatorDashboard);
 educatorRouter.get(
   "/enrolled-students",
-  protectEducator,
   getEnrolledStudentsData
 );
 

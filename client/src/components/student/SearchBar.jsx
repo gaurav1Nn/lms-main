@@ -25,12 +25,12 @@ const SearchBar = ({ data }) => {
         onChange={(e) => setInput(e.target.value)}
         value={input}
         type="text"
-        placeholder="Search for courses"
+        placeholder="Search 'market making', 'C++ for HFT'..."
         className="w-full h-full outline-none text-gray-500/80"
       />
       <button
         type="submit"
-        className="bg-blue-600 rounded text-white md:px-10 px-7 md:py-3 py-2 mx-1"
+        className=" bg-blue-600 rounded text-white md:px-10 px-7 md:py-3 py-2 mx-1"
       >
         Search
       </button>

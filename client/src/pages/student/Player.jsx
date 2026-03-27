@@ -15,7 +15,6 @@ const Player = () => {
     enrolledCourses,
     calculateChapterTime,
     backendUrl,
-    testUserId,
     userData,
     fetchUserEnrolledCourses,
   } = useContext(AppContext);
@@ -35,6 +34,8 @@ const Player = () => {
             setInitialRating(item.rating);
           }
         });
+        // Pass course directly so getCourseProgress has it before state update
+        getCourseProgress(course);
       }
     });
   };
@@ -53,7 +54,7 @@ const Player = () => {
     try {
       const { data } = await axios.post(
         backendUrl + "/api/user/update-course-progress",
-        { courseId, lectureId, userId: testUserId }
+        { courseId, lectureId }
       );
 
       if (data.success) {
@@ -67,15 +68,53 @@ const Player = () => {
     }
   };
 
-  const getCourseProgress = async () => {
+  const getCourseProgress = async (courseDataOverride) => {
     try {
       const { data } = await axios.post(
         backendUrl + "/api/user/get-course-progress",
-        { courseId, userId: testUserId }
+        { courseId }
       );
 
       if (data.success) {
         setProgressData(data.progressData);
+        // Auto-select first incomplete lecture (Option C — Player self-resolves resume point)
+        const completed = data.progressData?.lectureCompleted || [];
+        const source = courseDataOverride || courseData;
+        if (source && completed !== null) {
+          const sortedChapters = [...source.courseContent]
+            .sort((a, b) => a.chapterOrder - b.chapterOrder)
+            .map((ch) => ({
+              ...ch,
+              chapterContent: [...ch.chapterContent].sort(
+                (a, b) => a.lectureOrder - b.lectureOrder
+              ),
+            }));
+
+          // Find first incomplete lecture
+          let found = false;
+          for (let ci = 0; ci < sortedChapters.length && !found; ci++) {
+            const ch = sortedChapters[ci];
+            for (let li = 0; li < ch.chapterContent.length && !found; li++) {
+              const lec = ch.chapterContent[li];
+              if (!completed.includes(lec.lectureId)) {
+                setPlayerData({ ...lec, chapter: ci + 1, lecture: li + 1 });
+                found = true;
+              }
+            }
+          }
+          // If all complete, load the last lecture
+          if (!found && sortedChapters.length > 0) {
+            const lastCh = sortedChapters[sortedChapters.length - 1];
+            const lastLec = lastCh.chapterContent[lastCh.chapterContent.length - 1];
+            if (lastLec) {
+              setPlayerData({
+                ...lastLec,
+                chapter: sortedChapters.length,
+                lecture: lastCh.chapterContent.length,
+              });
+            }
+          }
+        }
       } else {
         toast.error(data.message);
       }
@@ -88,7 +127,7 @@ const Player = () => {
     try {
       const { data } = await axios.post(
         backendUrl + "/api/user/add-rating",
-        { courseId, rating, userId: testUserId }
+        { courseId, rating }
       );
       if (data.success) {
         toast.success(data.message);
@@ -101,9 +140,7 @@ const Player = () => {
     }
   };
 
-  useEffect(() => {
-    getCourseProgress();
-  }, []);
+
 
   return courseData ? (
     <>
@@ -125,9 +162,8 @@ const Player = () => {
                   >
                     <div className="flex items-center gap-2">
                       <img
-                        className={`transform transition-transform ${
-                          openSections[index] ? "rotate-180" : ""
-                        }`}
+                        className={`transform transition-transform ${openSections[index] ? "rotate-180" : ""
+                          }`}
                         src={assets.down_arrow_icon}
                         alt="down_arrow_icon"
                       />
@@ -142,9 +178,8 @@ const Player = () => {
                   </div>
 
                   <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      openSections[index] ? "max-h-96" : "max-h-0"
-                    }`}
+                    className={`overflow-hidden transition-all duration-300 ${openSections[index] ? "max-h-96" : "max-h-0"
+                      }`}
                   >
                     <ul className="list-disc md:pl-10 pl-4 pr-4 py-2 text-gray-600 border-t border-gray-300">
                       {chapter.chapterContent.map((lecture, i) => (
@@ -152,9 +187,9 @@ const Player = () => {
                           <img
                             src={
                               progressData &&
-                              progressData.lectureCompleted.includes(
-                                lecture.lectureId
-                              )
+                                progressData.lectureCompleted.includes(
+                                  lecture.lectureId
+                                )
                                 ? assets.blue_tick_icon
                                 : assets.play_icon
                             }
@@ -218,7 +253,7 @@ const Player = () => {
                   className="text-blue-600"
                 >
                   {progressData &&
-                  progressData.lectureCompleted.includes(playerData.lectureId)
+                    progressData.lectureCompleted.includes(playerData.lectureId)
                     ? "Completed"
                     : "Mark Complete"}
                 </button>

@@ -1,4 +1,4 @@
-# Edemy LMS - Complete Project Architecture Documentation
+# Quantpact - Complete Project Architecture Documentation
 
 ## 📋 Table of Contents
 
@@ -19,7 +19,7 @@
 
 ## Project Overview
 
-**Edemy** is a full-stack Learning Management System (LMS) built with the MERN stack. It's a comprehensive e-learning platform that connects educators with students, featuring:
+**Quantpact** is a specialized EdTech platform for quantitative trading and high-frequency trading (HFT) built with the MERN stack. It's a comprehensive e-learning platform that connects educators with students, featuring:
 
 - **Student Portal**: Browse courses, enroll, track progress, rate courses
 - **Educator Dashboard**: Create courses, manage content, view analytics, track enrollments
@@ -673,24 +673,9 @@ const session = await stripe.checkout.sessions.create({
 
 ### 3. Cloudinary (Image Storage)
 
-**Purpose**: Store course thumbnails
+**Status**: *Deprecated for Course Thumbnails (Moving to BLOB storage)*
 
-**Configuration**:
-```javascript
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET_KEY
-});
-```
-
-**Upload**:
-```javascript
-const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-  folder: "course_images"
-});
-// Returns: { secure_url: "https://..." }
-```
+**Purpose**: Previously used to store course thumbnails, currently being phased out for a simpler BLOB or local file upload system in `addCourse` and `editCourse` flows.
 
 ---
 
@@ -930,4 +915,29 @@ npm run build
 
 ---
 
-*Documentation generated for LLM context understanding - March 2026*
+## Recent Upgrades & Current Project Status (March 2026)
+
+### 1. Rebranding to Quantpact
+The LMS platform has been successfully rebranded to **Quantpact**.
+- **Focus**: Specialized EdTech platform for quantitative trading and high-frequency trading (HFT).
+- **Changes**: Comprehensive text-only rebranding across the frontend (global titles, hero section copy, trust indicators, testimonials, and mock course data) reflecting a professional, institutional-grade fintech aesthetic.
+
+### 2. Educator Dashboard Redesign
+- Modernized the educator dashboard UI to match the high-fidelity fintech design.
+- Implemented updated metric cards, a refined sidebar, and a structured course creation form.
+- ensured responsiveness and visual consistency with the new brand aesthetic.
+
+### 3. Architecture Updates & Edit Course Functionality
+- **Cloudinary Removal**: We have removed Cloudinary integration from the backend for course thumbnails (e.g., in the `addCourse` flow) to simplify image handling and move towards BLOB storage.
+- **Edit Course Feature Planned**: We are actively planning and implementing the Edit Course functionality. 
+  - Utilizing a `PUT /update-course` API endpoint.
+  - Enacting strict validation procedures (Zod) and educator ownership security checks.
+  - Ensuring existing lecture/chapter IDs remain stable during edits to preserve student progress.
+
+### Current Status
+- **Phase**: Active development.
+- **Immediate Focus**: Implementing the "Edit Course" frontend form and securely handling the backend API for course modifications.
+
+---
+
+*Documentation updated for LLM context understanding - March 2026*

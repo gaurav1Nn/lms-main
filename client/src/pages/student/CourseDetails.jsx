@@ -26,7 +26,6 @@ const CourseDetails = () => {
     currency,
     backendUrl,
     userData,
-    testUserId,
   } = useContext(AppContext);
 
   const fetchCourseData = async () => {
@@ -54,7 +53,7 @@ const CourseDetails = () => {
 
       const { data } = await axios.post(
         backendUrl + "/api/user/purchase",
-        { courseId: courseData._id, userId: testUserId }
+        { courseId: courseData._id }
       );
 
       if (data.success) {
@@ -147,9 +146,8 @@ const CourseDetails = () => {
                   >
                     <div className="flex items-center gap-2">
                       <img
-                        className={`transform transition-transform ${
-                          openSections[index] ? "rotate-180" : ""
-                        }`}
+                        className={`transform transition-transform ${openSections[index] ? "rotate-180" : ""
+                          }`}
                         src={assets.down_arrow_icon}
                         alt="down_arrow_icon"
                       />
@@ -164,9 +162,8 @@ const CourseDetails = () => {
                   </div>
 
                   <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      openSections[index] ? "max-h-96" : "max-h-0"
-                    }`}
+                    className={`overflow-hidden transition-all duration-300 ${openSections[index] ? "max-h-96" : "max-h-0"
+                      }`}
                   >
                     <ul className="list-disc md:pl-10 pl-4 pr-4 py-2 text-gray-600 border-t border-gray-300">
                       {chapter.chapterContent.map((lecture, i) => (
@@ -293,7 +290,7 @@ const CourseDetails = () => {
 
             <button
               onClick={enrollCourse}
-              className="md:mt-6 mt-4 w-full py-3 rounded bg-blue-600 text-white font-medium"
+              className="md:mt-6 mt-4 w-full py-3 rounded  bg-blue-600 text-white font-medium"
             >
               {isAlreadyEnrolled ? "Already Enrolled" : "Enroll Now"}
             </button>

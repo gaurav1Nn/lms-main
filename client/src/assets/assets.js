@@ -104,24 +104,24 @@ export const dummyEducatorData = {
 export const dummyTestimonial = [
     {
         name: 'Donald Jackman',
-        role: 'SWE 1 @ Amazon',
+        role: 'Quant Developer, Proprietary Trading Firm',
         image: assets.profile_img_1,
         rating: 5,
-        feedback: 'I\'ve been using Imagify for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.',
+        feedback: 'The matching engine architecture course completely changed how I think about order execution systems.',
     },
     {
         name: 'Richard Nelson',
-        role: 'SWE 2 @ Samsung',
+        role: 'CS Graduate, IIT Delhi',
         image: assets.profile_img_2,
         rating: 4,
-        feedback: 'I\'ve been using Imagify for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.',
+        feedback: 'I went from basic Python to building a full backtesting framework in 8 weeks. The C++ modules are exceptional.',
     },
     {
         name: 'James Washington',
-        role: 'SWE 2 @ Google',
+        role: 'Junior Trader, Prop Trading Desk',
         image: assets.profile_img_3,
         rating: 4.5,
-        feedback: 'I\'ve been using Imagify for nearly two years, primarily for Instagram, and it has been incredibly user-friendly, making my work much easier.',
+        feedback: 'Finally, a platform that teaches real market microstructure instead of just candlestick patterns.',
     },
 ];
 
@@ -129,7 +129,7 @@ export const dummyDashboardData = {
     "totalEarnings": 707.38,
     "enrolledStudentsData": [
         {
-            "courseTitle": "Introduction to JavaScript",
+            "courseTitle": "C++ for High-Frequency Trading",
             "student": {
                 "_id": "user_2qQlvXyr02B4Bq6hT0Gvaa5fT9V",
                 "name": "Great Stack",
@@ -137,7 +137,7 @@ export const dummyDashboardData = {
             }
         },
         {
-            "courseTitle": "Advanced Python Programming",
+            "courseTitle": "Statistical Arbitrage Strategies",
             "student": {
                 "_id": "user_2qQlvXyr02B4Bq6hT0Gvaa5fT9V",
                 "name": "Great Stack",
@@ -145,7 +145,7 @@ export const dummyDashboardData = {
             }
         },
         {
-            "courseTitle": "Web Development Bootcamp",
+            "courseTitle": "Market Microstructure & Order Books",
             "student": {
                 "_id": "user_2qQlvXyr02B4Bq6hT0Gvaa5fT9V",
                 "name": "Great Stack",
@@ -153,7 +153,7 @@ export const dummyDashboardData = {
             }
         },
         {
-            "courseTitle": "Data Science with Python",
+            "courseTitle": "Python for Quantitative Research",
             "student": {
                 "_id": "user_2qQlvXyr02B4Bq6hT0Gvaa5fT9V",
                 "name": "Great Stack",
@@ -179,7 +179,7 @@ export const dummyStudentEnrolled = [
             "name": "GreatStack",
             "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18ycVFsdmFMSkw3ckIxNHZMU2o4ZURWNEtmR2IifQ"
         },
-        "courseTitle": "Introduction to JavaScript",
+        "courseTitle": "C++ for High-Frequency Trading",
         "purchaseDate": "2024-12-20T08:39:55.509Z"
     },
     {
@@ -188,7 +188,7 @@ export const dummyStudentEnrolled = [
             "name": "GreatStack",
             "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18ycVFsdmFMSkw3ckIxNHZMU2o4ZURWNEtmR2IifQ"
         },
-        "courseTitle": "Introduction to JavaScript",
+        "courseTitle": "C++ for High-Frequency Trading",
         "purchaseDate": "2024-12-20T08:59:49.964Z"
     },
     {
@@ -197,7 +197,7 @@ export const dummyStudentEnrolled = [
             "name": "GreatStack",
             "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18ycVFsdmFMSkw3ckIxNHZMU2o4ZURWNEtmR2IifQ"
         },
-        "courseTitle": "Advanced Python Programming",
+        "courseTitle": "Statistical Arbitrage Strategies",
         "purchaseDate": "2024-12-20T11:03:42.931Z"
     },
     {
@@ -206,7 +206,7 @@ export const dummyStudentEnrolled = [
             "name": "GreatStack",
             "imageUrl": "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18ycVFsdmFMSkw3ckIxNHZMU2o4ZURWNEtmR2IifQ"
         },
-        "courseTitle": "Web Development Bootcamp",
+        "courseTitle": "Market Microstructure & Order Books",
         "purchaseDate": "2024-12-20T11:04:48.798Z"
     }
 ]
@@ -214,7 +214,7 @@ export const dummyStudentEnrolled = [
 export const dummyCourses = [
     {
         "_id": "605c72efb3f1c2b1f8e4e1a1",
-        "courseTitle": "Introduction to JavaScript",
+        "courseTitle": "C++ for High-Frequency Trading",
         "courseDescription": "<h2>Learn the Basics of JavaScript</h2><p>JavaScript is a versatile programming language that powers the web. In this course, you will learn the fundamentals of JavaScript, including syntax, data types, and control structures.</p><p>This course is perfect for beginners who want to start their journey in web development. By the end of this course, you will be able to create interactive web pages and understand the core concepts of JavaScript.</p><ul><li>Understand the basics of programming</li><li>Learn how to manipulate the DOM</li><li>Create dynamic web applications</li></ul>",
         "coursePrice": 49.99,
         "isPublished": true,
@@ -287,7 +287,7 @@ export const dummyCourses = [
     },
     {
         "_id": "675ac1512100b91a6d9b8b24",
-        "courseTitle": "Advanced Python Programming",
+        "courseTitle": "Statistical Arbitrage Strategies",
         "courseDescription": "<h2>Deep Dive into Python Programming</h2><p>This course is designed for those who have a basic understanding of Python and want to take their skills to the next level. You will explore advanced topics such as decorators, generators, and context managers.</p><p>By the end of this course, you will be able to write efficient and clean Python code, and understand how to leverage Python's powerful features for real-world applications.</p><ul><li>Master advanced data structures</li><li>Implement object-oriented programming concepts</li><li>Work with libraries and frameworks</li></ul>",
         "coursePrice": 79.99,
         "isPublished": true,
@@ -425,7 +425,7 @@ export const dummyCourses = [
     },
     {
         "_id": "605c72efb3f1c2b1f8e4e1a7",
-        "courseTitle": "Web Development Bootcamp",
+        "courseTitle": "Market Microstructure & Order Books",
         "courseDescription": "<h2>Become a Full-Stack Web Developer</h2><p>This comprehensive bootcamp covers everything you need to know to become a full-stack web developer. From HTML and CSS to JavaScript and backend technologies, this course is designed to take you from beginner to job-ready.</p><p>Throughout the course, you will work on real-world projects, build a portfolio, and gain the skills necessary to succeed in the tech industry.</p><ul><li>Learn front-end and back-end development</li><li>Build responsive and dynamic web applications</li><li>Understand databases and server-side programming</li></ul>",
         "coursePrice": 99.99,
         "isPublished": true,
@@ -556,7 +556,7 @@ export const dummyCourses = [
     },
     {
         "_id": "605c72efb3f1c2b1f8e4e1ad",
-        "courseTitle": "Data Science with Python",
+        "courseTitle": "Python for Quantitative Research",
         "courseDescription": "<h2>Start Your Data Science Journey</h2><p>Data Science is one of the most in-demand fields in the world. This course teaches you the essentials of data analysis, visualization, and machine learning using Python. Learn libraries like Pandas, NumPy, Matplotlib, and Scikit-learn.</p><p>By the end of this course, you will be equipped to work on real-world data projects and gain insights from data.</p><ul><li>Data cleaning and preprocessing</li><li>Exploratory Data Analysis (EDA)</li><li>Build predictive models</li></ul>",
         "coursePrice": 89.99,
         "isPublished": true,
