@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { AppContext } from "../../context/AppContext";
 import { useParams } from "react-router-dom";
 import { assets } from "../../assets/assets";
@@ -9,6 +9,7 @@ import Rating from "../../components/student/Rating";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Loading from "../../components/student/Loading";
+import { extractYouTubeId } from "../../utils/videoUtils";
 
 const Player = () => {
   const {
@@ -24,6 +25,9 @@ const Player = () => {
   const [playerData, setPlayerData] = useState(null);
   const [progressData, setProgressData] = useState(null);
   const [initialRating, setInitialRating] = useState(0);
+
+  const [videoData, setVideoData] = useState(null);
+  const abortControllerRef = useRef(null);
 
   const getCourseData = () => {
     enrolledCourses.map((course) => {
@@ -140,6 +144,42 @@ const Player = () => {
     }
   };
 
+  useEffect(() => {
+    if (!playerData) return;
+
+    const fetchVideoUrl = async () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+
+      try {
+        const { data } = await axios.post(
+          backendUrl + "/api/user/get-video-url",
+          { courseId, lectureId: playerData.lectureId },
+          { signal: abortControllerRef.current.signal }
+        );
+
+        if (data.success) {
+          setVideoData({ type: data.type, url: data.url });
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        if (axios.isCancel(error)) return;
+        toast.error(error.message);
+      }
+    };
+
+    fetchVideoUrl();
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [playerData, courseId, backendUrl]);
+
 
 
   return courseData ? (
@@ -237,12 +277,24 @@ const Player = () => {
 
         {/* right column */}
         <div className="md:mt-10">
-          {playerData ? (
+          {playerData && videoData ? (
             <div>
-              <YouTube
-                videoId={playerData.lectureUrl.split("/").pop()}
-                iframeClassName="w-full aspect-video"
-              />
+              {videoData.type === "youtube" ? (
+                <YouTube
+                  videoId={extractYouTubeId(videoData.url)}
+                  iframeClassName="w-full aspect-video"
+                />
+              ) : (
+                <video
+                  controls
+                  controlsList="nodownload"
+                  className="w-full aspect-video"
+                  src={videoData.url}
+                  autoPlay
+                  onContextMenu={(e) => e.preventDefault()}
+                  onError={() => toast.error("Error loading secure video. Your session may have expired.")}
+                />
+              )}
               <div className="flex justify-between items-center mt-1">
                 <p>
                   {playerData.chapter}.{playerData.lecture}{" "}

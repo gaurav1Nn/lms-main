@@ -13,7 +13,7 @@ const Navbar = () => {
         <span className="text-2xl lg:text-3xl font-extrabold text-gray-800 tracking-tight">Quantpact</span>
       </Link>
       <div className="flex items-center gap-5 text-gray-500 relative">
-        <p>Hi! {userData?.name || "Educator"}</p>
+        <p>Hi! {userData?.name || "Admin"}</p>
         <img src={userData?.imageUrl || assets.profile_img} alt="profile_img" className="max-w-8 rounded-full" />
         <button onClick={logout} className="text-red-500 ml-4 cursor-pointer">Logout</button>
       </div>

@@ -166,7 +166,7 @@ const Dashboard = () => {
     )}&background=059669&color=fff&size=40`;
   };
 
-  const educatorFirstName = userData?.name?.split(" ")[0] || "Educator";
+  const educatorFirstName = userData?.name?.split(" ")[0] || "Admin";
 
   if (!dashboardData) return <Loading />;
 

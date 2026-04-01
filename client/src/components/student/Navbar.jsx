@@ -47,7 +47,7 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <button onClick={becomeEducator}>
-                {isEducator ? "Educator Dashboard" : "Become Educator"}
+                {isEducator ? "Admin Dashboard" : "Become Admin"}
               </button>
               | <Link to="/dashboard">My Learning</Link>
               | <button onClick={logout} className="text-red-500">Logout</button>
@@ -66,7 +66,7 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <button onClick={becomeEducator}>
-                {isEducator ? "Educator Dashboard" : "Become Educator"}
+                {isEducator ? "Admin Dashboard" : "Become Admin"}
               </button>
               | <Link to="/dashboard">My Learning</Link>
               | <button onClick={logout} className="text-red-500">Logout</button>

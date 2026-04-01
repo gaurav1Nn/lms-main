@@ -5,8 +5,7 @@ const lectureSchema = new mongoose.Schema(
     lectureId: { type: String, required: true },
     lectureTitle: { type: String, required: true },
     lectureDuration: { type: Number, required: true },
-    lectureUrl: { type: String, required: true },
-    isPreviewFree: { type: Boolean, required: true },
+    lectureUrl: { type: String, required: true }, // Can be a YouTube URL or an S3 Object Key
     lectureOrder: { type: Number, required: true },
   },
   { _id: false }

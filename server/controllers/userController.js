@@ -3,6 +3,7 @@ import Course from "../models/Course.js";
 import { Purchase } from "../models/Purchase.js";
 import User from "../models/User.js";
 import { CourseProgress } from "../models/CourseProgress.js";
+import { generatePresignedGetUrl } from "../configs/s3.js";
 
 // Get User Data
 export const getUserData = async (req, res) => {
@@ -196,5 +197,52 @@ export const addUserRating = async (req, res) => {
     return res.json({ success: true, message: "Rating added" });
   } catch (error) {
     return res.json({ success: false, message: error.message });
+  }
+};
+
+// Get Video Presigned URL
+export const getVideoPresignedUrl = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { courseId, lectureId } = req.body;
+
+    if (!courseId || !lectureId) {
+      return res.status(400).json({ success: false, message: "Course ID and Lecture ID are required" });
+    }
+
+    const user = await User.findById(userId);
+    
+    if (!user || (!user.enrolledCourses.some(id => id.toString() === courseId))) {
+      return res.status(403).json({ success: false, message: "Not authorized to access this secure video content." });
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Course not found" });
+    }
+
+    let foundLectureUrl = null;
+    for (const chapter of course.courseContent) {
+      const lecture = chapter.chapterContent.find((l) => l.lectureId === lectureId);
+      if (lecture) {
+        foundLectureUrl = lecture.lectureUrl;
+        break;
+      }
+    }
+
+    if (!foundLectureUrl) {
+      return res.status(404).json({ success: false, message: "Lecture not found" });
+    }
+
+    const isYouTube = foundLectureUrl.includes("youtube.com") || foundLectureUrl.includes("youtu.be");
+    if (isYouTube) {
+      return res.json({ success: true, type: "youtube", url: foundLectureUrl });
+    }
+
+    const presignedUrl = await generatePresignedGetUrl(foundLectureUrl);
+    return res.json({ success: true, type: "s3", url: presignedUrl });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

@@ -5,7 +5,6 @@ import Loading from "../../components/student/Loading";
 import { assets } from "../../assets/assets";
 import humanizeDuration from "humanize-duration";
 import Footer from "../../components/student/Footer";
-import YouTube from "react-youtube";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -15,8 +14,6 @@ const CourseDetails = () => {
   const [courseData, setCourseData] = useState(null);
   const [openSections, setOpenSections] = useState({});
   const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
-  const [playerData, setPlayerData] = useState(null);
-
   const {
     allCourses,
     calculateRating,
@@ -176,20 +173,6 @@ const CourseDetails = () => {
                           <div className="flex items-center justify-between w-full text-gray-800 text-xs md:text-default">
                             <p>{lecture.lectureTitle}</p>
                             <div className="flex gap-2">
-                              {lecture.isPreviewFree && (
-                                <p
-                                  onClick={() =>
-                                    setPlayerData({
-                                      videoId: lecture.lectureUrl
-                                        .split("/")
-                                        .pop(),
-                                    })
-                                  }
-                                  className="text-blue-500 cursor-pointer"
-                                >
-                                  Preview
-                                </p>
-                              )}
                               <p>
                                 {humanizeDuration(
                                   lecture.lectureDuration * 60 * 1000,
@@ -220,22 +203,7 @@ const CourseDetails = () => {
 
         {/* right column */}
         <div className="max-w-course-card z-10 shadow-custom-card rounded-t md:rounded-none overflow-hidden bg-white min-w-[300px] sm:min-w-[420px]">
-          {playerData ? (
-            <YouTube
-              videoId={playerData.videoId}
-              opts={{
-                playerVars: {
-                  autoplay: 1,
-                },
-              }}
-              iframeClassName="w-full aspect-video"
-            />
-          ) : (
-            <img
-              src={courseData.courseThumbnail}
-              alt={courseData.courseTitle}
-            />
-          )}
+          <img src={courseData.courseThumbnail} alt={courseData.courseTitle} />
 
           <div className="p-5">
             <div className="flex items-center gap-2">

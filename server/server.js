@@ -11,6 +11,7 @@ import authRouter from "./routes/authRoutes.js";
 
 // Initialize Express
 const app = express();
+app.set("trust proxy", 1); // Fixes express-rate-limit ipv6 crash
 
 // Connect to the MongoDB database
 await connectDB();

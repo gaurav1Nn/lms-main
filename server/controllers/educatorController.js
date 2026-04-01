@@ -3,6 +3,8 @@ import { Purchase } from "../models/Purchase.js";
 import User from "../models/User.js";
 
 import jwt from "jsonwebtoken";
+import { generatePresignedPutUrl, s3Client } from "../configs/s3.js";
+import { HeadObjectCommand } from "@aws-sdk/client-s3";
 
 // Update role to educator
 export const updateRoleToEducator = async (req, res) => {
@@ -31,6 +33,40 @@ export const addCourse = async (req, res) => {
     const educatorId = req.user.id;
 
     const parsedCourseData = await JSON.parse(courseData);
+    
+    // Validate lectureUrls and Check S3 Existence
+    for (const chapter of parsedCourseData.courseContent || []) {
+      for (const lecture of chapter.chapterContent || []) {
+        const url = lecture.lectureUrl;
+        if (!url) continue;
+
+        const isYouTube = url.includes("youtube.com") || url.includes("youtu.be");
+        
+        if (!isYouTube) {
+          const expectedPrefix = `educators/${educatorId}/`;
+          if (!url.startsWith(expectedPrefix) || !url.endsWith(".mp4")) {
+             return res.status(400).json({ 
+               success: false, 
+               message: `Lecture '${lecture.lectureTitle}' has an invalid video URL. Must be a valid YouTube link or a direct S3 upload.` 
+             });
+          }
+          
+          try {
+             const command = new HeadObjectCommand({
+               Bucket: process.env.S3_BUCKET_NAME,
+               Key: url
+             });
+             await s3Client.send(command);
+          } catch (err) {
+             return res.status(400).json({
+               success: false,
+               message: `Video for lecture '${lecture.lectureTitle}' has not finished uploading or does not exist.`
+             });
+          }
+        }
+      }
+    }
+
     parsedCourseData.educator = educatorId;
     const newCourse = await Course.create(parsedCourseData);
     
@@ -127,6 +163,23 @@ export const getEnrolledStudentsData = async (req, res) => {
     }));
 
     res.json({ success: true, enrolledStudents });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Generate Presigned PUT URL for Video Uploads
+export const getUploadPresignedUrl = async (req, res) => {
+  try {
+    const { lectureId } = req.body;
+    if (!lectureId) {
+      return res.status(400).json({ success: false, message: "Lecture ID is required" });
+    }
+    
+    const s3Key = `educators/${req.user.id}/${lectureId}.mp4`;
+    const uploadUrl = await generatePresignedPutUrl(s3Key);
+    
+    res.json({ success: true, uploadUrl, s3Key });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }

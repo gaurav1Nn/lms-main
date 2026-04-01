@@ -423,8 +423,54 @@ const AddCourse = () => {
     lectureTitle: "",
     lectureDuration: "",
     lectureUrl: "",
-    isPreviewFree: false,
+    isUploading: false,
+    preSetLectureId: null,
   });
+
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (file.size > 500 * 1024 * 1024) {
+      toast.error("Video size cannot exceed 500MB");
+      e.target.value = "";
+      return;
+    }
+
+    try {
+      setLectureDetails(prev => ({ ...prev, lectureUrl: "Uploading...", isUploading: true }));
+      
+      const lectureId = uniqid(); 
+      
+      const { data } = await axios.post(backendUrl + "/api/educator/get-upload-url", { lectureId });
+      
+      if (!data.success) throw new Error(data.message);
+      
+      const { uploadUrl, s3Key } = data;
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": "video/mp4" }
+      });
+
+      if (!uploadResponse.ok) throw new Error("S3 Upload Failed");
+
+      setLectureDetails(prev => ({ 
+        ...prev, 
+        lectureUrl: s3Key, 
+        isUploading: false,
+        preSetLectureId: lectureId
+      }));
+
+      toast.success("Video uploaded securely to S3!");
+      
+    } catch (error) {
+      toast.error(error.message || "Upload failed");
+      setLectureDetails(prev => ({ ...prev, lectureUrl: "", isUploading: false, preSetLectureId: null }));
+      e.target.value = "";
+    }
+  };
 
   const handleChapter = (action, chapterId) => {
     if (action === "add") {
@@ -472,16 +518,21 @@ const AddCourse = () => {
   };
 
   const addLecture = () => {
+    if (lectureDetails.isUploading) {
+      return toast.warn("Please wait for the video to finish uploading.");
+    }
     setChapters(
       chapters.map((chapter) => {
         if (chapter.chapterId === currentChapterId) {
           const newLecture = {
-            ...lectureDetails,
+            lectureTitle: lectureDetails.lectureTitle,
+            lectureDuration: lectureDetails.lectureDuration,
+            lectureUrl: lectureDetails.lectureUrl,
             lectureOrder:
               chapter.chapterContent.length > 0
                 ? chapter.chapterContent.slice(-1)[0].lectureOrder + 1
                 : 1,
-            lectureId: uniqid(),
+            lectureId: lectureDetails.preSetLectureId || uniqid(),
           };
           chapter.chapterContent.push(newLecture);
         }
@@ -493,14 +544,15 @@ const AddCourse = () => {
       lectureTitle: "",
       lectureDuration: "",
       lectureUrl: "",
-      isPreviewFree: false,
+      isUploading: false,
+      preSetLectureId: null,
     });
   };
 
   const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
+    e.preventDefault();
 
+    try {
       const courseData = {
         courseTitle,
         courseDescription: quillRef.current.root.innerHTML,
@@ -511,7 +563,9 @@ const AddCourse = () => {
 
       const formData = new FormData();
       formData.append("courseData", JSON.stringify(courseData));
-      formData.append("image", image);
+      if (image) {
+        formData.append("image", image);
+      }
 
       const { data } = await axios.post(
         backendUrl + "/api/educator/add-course",
@@ -878,11 +932,6 @@ const AddCourse = () => {
                               </svg>
                             </a>
                           )}
-                          {lecture.isPreviewFree && (
-                            <span className="text-xs bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">
-                              Free
-                            </span>
-                          )}
                         </div>
 
                         <button
@@ -1022,13 +1071,24 @@ const AddCourse = () => {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-semibold text-gray-700">
-                  Lecture URL
+                  Lecture Video
                 </label>
                 <input
-                  type="text"
-                  className="w-full py-2.5 px-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-800
+                  type="file"
+                  accept="video/mp4"
+                  onChange={handleVideoUpload}
+                  className="w-full py-2 px-3 border border-gray-200 rounded-lg text-sm bg-gray-50 mb-2
                              outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                />
+                <p className="text-xs text-gray-400">Or enter a YouTube URL:</p>
+                <input
+                  type="text"
+                  className={`w-full py-2.5 px-4 rounded-lg border border-gray-200 bg-gray-50 text-gray-800
+                             outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors
+                             ${lectureDetails.isUploading ? "opacity-50 cursor-not-allowed" : ""}`}
                   value={lectureDetails.lectureUrl}
+                  readOnly={lectureDetails.isUploading}
+                  placeholder="https://youtube.com/..."
                   onChange={(e) =>
                     setLectureDetails({
                       ...lectureDetails,
@@ -1036,40 +1096,6 @@ const AddCourse = () => {
                     })
                   }
                 />
-              </div>
-
-              <div className="flex items-center gap-3 py-2">
-                <div
-                  onClick={() =>
-                    setLectureDetails({
-                      ...lectureDetails,
-                      isPreviewFree: !lectureDetails.isPreviewFree,
-                    })
-                  }
-                  className={`w-10 h-6 rounded-full cursor-pointer transition-colors relative ${
-                    lectureDetails.isPreviewFree
-                      ? "bg-emerald-600"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  <div
-                    className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${
-                      lectureDetails.isPreviewFree
-                        ? "translate-x-5"
-                        : "translate-x-1"
-                    }`}
-                  />
-                </div>
-                <label className="text-sm font-medium text-gray-700 cursor-pointer"
-                  onClick={() =>
-                    setLectureDetails({
-                      ...lectureDetails,
-                      isPreviewFree: !lectureDetails.isPreviewFree,
-                    })
-                  }
-                >
-                  Free Preview
-                </label>
               </div>
             </div>
 

@@ -5,6 +5,7 @@ import {
   getEducatorCourses,
   getEnrolledStudentsData,
   updateRoleToEducator,
+  getUploadPresignedUrl,
 } from "../controllers/educatorController.js";
 import upload from "../configs/multer.js";
 import { protect, educatorOnly } from "../middlewares/authMiddleware.js";
@@ -23,6 +24,7 @@ educatorRouter.post(
 );
 educatorRouter.get("/courses", getEducatorCourses);
 educatorRouter.get("/dashboard", educatorDashboard);
+educatorRouter.post("/get-upload-url", getUploadPresignedUrl);
 educatorRouter.get(
   "/enrolled-students",
   getEnrolledStudentsData

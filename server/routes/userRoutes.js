@@ -7,7 +7,9 @@ import {
   purchaseCourse,
   updateUserCourseProgress,
   userEnrolledCourses,
+  getVideoPresignedUrl
 } from "../controllers/userController.js";
+import { videoUrlRateLimiter } from "../middlewares/rateLimiters.js";
 
 const userRouter = express.Router();
 
@@ -20,5 +22,6 @@ userRouter.post("/purchase", purchaseCourse);
 userRouter.post("/update-course-progress", updateUserCourseProgress);
 userRouter.post("/get-course-progress", getUserCourseProgress);
 userRouter.post("/add-rating", addUserRating);
+userRouter.post("/get-video-url", videoUrlRateLimiter, getVideoPresignedUrl);
 
 export default userRouter;
