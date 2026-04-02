@@ -39,7 +39,8 @@ const ChapterOverview = ({ chapterProgress, courseId }) => {
             <div
               key={chapter.chapterId}
               onClick={handleChapterClick}
-              className="bg-white shadow-sm border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-emerald-500/40 hover:bg-gray-50 transition-all duration-200 group"
+              className="bg-white/80 backdrop-blur-xl border border-emerald-100/50 rounded-2xl p-4 cursor-pointer hover:border-emerald-400 hover:bg-white transition-all duration-200 group shadow-md"
+              style={{ boxShadow: '0 10px 30px -10px rgba(5, 150, 105, 0.1)' }}
             >
               <div className="flex items-center gap-3">
                 <StatusIcon done={chapter.done} total={chapter.total} />

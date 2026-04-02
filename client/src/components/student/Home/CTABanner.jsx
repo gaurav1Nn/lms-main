@@ -9,6 +9,11 @@ const CTABanner = () => {
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[100%] bg-gradient-to-l from-emerald-600/30 to-transparent blur-3xl rounded-full transform rotate-12"></div>
         <div className="absolute bottom-[-20%] left-[-10%] w-[40%] h-[80%] bg-gradient-to-tr from-emerald-800/40 to-transparent blur-3xl rounded-full"></div>
+        {/* Decorative Bubbles */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-30" style={{ background: 'radial-gradient(circle, #34d399, transparent)' }} />
+        <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #059669, transparent)' }} />
+        <div className="absolute top-1/4 left-10 w-20 h-20 rounded-full opacity-10 bg-emerald-500" />
+        <div className="absolute bottom-1/3 right-20 w-14 h-14 rounded-full opacity-15 bg-emerald-400" />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

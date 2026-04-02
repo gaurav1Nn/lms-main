@@ -2,7 +2,8 @@ import React from "react";
 import { toast } from "react-toastify";
 
 const StatCard = ({ icon, value, label, children }) => (
-  <div className="flex-1 bg-white border border-gray-200 shadow-sm rounded-xl p-5 flex flex-col items-center text-center gap-2">
+  <div className="flex-1 bg-white/80 backdrop-blur-xl border border-emerald-100/50 shadow-xl rounded-2xl p-5 flex flex-col items-center text-center gap-2"
+       style={{ boxShadow: '0 25px 60px -12px rgba(5, 150, 105, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.05)' }}>
     <span className="text-3xl">{icon}</span>
     {children ? children : <p className="text-2xl font-bold text-gray-900">{value}</p>}
     <p className="text-sm text-gray-600">{label}</p>
@@ -40,7 +41,8 @@ const StatsStrip = ({ lectureCompleted, totalLectures, hoursWatched, pct }) => {
         {isComplete ? (
           <button
             onClick={handleCertificateClick}
-            className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-semibold rounded-lg text-sm transition-all duration-200 hover:-translate-y-0.5"
+            className="px-4 py-1.5 text-white font-semibold rounded-xl text-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+            style={{ background: 'linear-gradient(135deg, #059669, #10b981)', boxShadow: '0 4px 15px -3px rgba(5, 150, 105, 0.4)' }}
           >
             Download Certificate
           </button>

@@ -15,7 +15,7 @@ const ResumeCard = ({ course, resumeChapter, resumeLecture, lectureCompleted, to
   };
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-emerald-100/50 bg-white/80 backdrop-blur-xl p-6 shadow-xl" style={{ boxShadow: '0 25px 60px -12px rgba(5, 150, 105, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.05)' }}>
       <div className="flex flex-col md:flex-row gap-6">
         {/* Thumbnail */}
         <div className="flex-shrink-0">
@@ -65,7 +65,8 @@ const ResumeCard = ({ course, resumeChapter, resumeLecture, lectureCompleted, to
           {/* CTA Button */}
           <button
             onClick={() => navigate(`/player/${course._id}`)}
-            className="self-start mt-1 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-semibold rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/25 text-sm"
+            className="self-start mt-1 px-6 py-2.5 text-white font-semibold rounded-xl text-sm transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+            style={{ background: 'linear-gradient(135deg, #059669, #10b981)', boxShadow: '0 4px 15px -3px rgba(5, 150, 105, 0.4)' }}
           >
             {getButtonLabel()}
           </button>

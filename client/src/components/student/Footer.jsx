@@ -1,3 +1,83 @@
+// import React from "react";
+// import { assets } from "../../assets/assets";
+
+// const Footer = () => {
+//   return (
+//     <footer className="bg-gray-900 w-full mt-auto">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 py-16 border-b border-gray-800">
+          
+//           {/* Brand Column */}
+//           <div className="flex flex-col items-start w-full">
+//             <div className="flex items-center gap-2 mb-6">
+//               <img src={assets.logo_dark} alt="Quantpact Logo" className="w-10 lg:w-12" />
+//               <span className="text-2xl lg:text-3xl font-black text-white tracking-tight">Quantpact</span>
+//             </div>
+//             <p className="text-sm text-gray-400 leading-relaxed">
+//               The Stoic Architect of Quantitative Learning. High-fidelity instruction for the modern algorithmic specialist.
+//             </p>
+//           </div>
+
+//           {/* Platform Links */}
+//           <div className="flex flex-col items-start w-full">
+//             <h2 className="font-bold text-white tracking-wide mb-6">Platform</h2>
+//             <ul className="flex flex-col space-y-3 text-sm text-gray-400 font-medium">
+//               <li><a href="#" className="hover:text-emerald-400 transition-colors">Curriculum</a></li>
+//               {/* <li><a href="#" className="hover:text-emerald-400 transition-colors">Pricing Structure</a></li> */}
+//               {/* <li><a href="#" className="hover:text-emerald-400 transition-colors">Outcomes</a></li>
+//               <li><a href="#" className="hover:text-emerald-400 transition-colors">Educator Network</a></li> */}
+//             </ul>
+//           </div>
+
+//           {/* Resources Links */}
+//           <div className="flex flex-col items-start w-full">
+//             <h2 className="font-bold text-white tracking-wide mb-6">Resources</h2>
+//             <ul className="flex flex-col space-y-3 text-sm text-gray-400 font-medium">
+//               <li><a href="#" className="hover:text-emerald-400 transition-colors">Algorithmic Blog</a></li>
+//               <li><a href="#" className="hover:text-emerald-400 transition-colors">Data Science Tools</a></li>
+//               <li><a href="#" className="hover:text-emerald-400 transition-colors">Market Reports</a></li>
+//               <li><a href="#" className="hover:text-emerald-400 transition-colors">Help Center</a></li>
+//             </ul>
+//           </div>
+
+//           Newsletter / Legal
+//           <div className="flex flex-col items-start w-full">
+//             <h2 className="font-bold text-white tracking-wide mb-6">Stay Updated</h2>
+//             <p className="text-sm text-gray-400 mb-4">
+//               Weekly alpha signals and strategy breakdowns.
+//             </p>
+//             <form className="flex items-center gap-2 w-full" onSubmit={(e) => e.preventDefault()}>
+//               <input
+//                 type="email"
+//                 placeholder="Email address"
+//                 className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+//               />
+//               <button className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg px-4 py-2.5 text-sm transition-colors shadow-sm">
+//                 Join
+//               </button>
+//             </form>
+//           </div>
+//         </div>
+
+//         {/* Bottom Bar */}
+//         <div className="flex flex-col md:flex-row items-center justify-between py-8 gap-4">
+//           <p className="text-xs text-gray-500 font-medium">
+//             Copyright © {new Date().getFullYear()} Quantpact Ltd. All Rights Reserved.
+//           </p>
+//           <div className="flex items-center gap-6 text-xs text-gray-500 font-medium">
+//             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+//             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+//             <a href="#" className="hover:text-white transition-colors">Risk Disclaimer</a>
+//           </div>
+//         </div>
+//       </div>
+//     </footer>
+//   );
+// };
+
+// export default Footer;
+
+// new code 
 import React from "react";
 import { assets } from "../../assets/assets";
 
@@ -5,70 +85,68 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 w-full mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 py-16 border-b border-gray-800">
-          
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 py-16 border-b border-gray-800">
+
           {/* Brand Column */}
           <div className="flex flex-col items-start w-full">
             <div className="flex items-center gap-2 mb-6">
               <img src={assets.logo_dark} alt="Quantpact Logo" className="w-10 lg:w-12" />
               <span className="text-2xl lg:text-3xl font-black text-white tracking-tight">Quantpact</span>
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              The Stoic Architect of Quantitative Learning. High-fidelity instruction for the modern algorithmic specialist.
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              High-fidelity quantitative trading education for the modern algorithmic specialist.
             </p>
+            {/* Social Links */}
+            <div className="flex items-center gap-4">
+              <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 4.557a9.83 9.83 0 01-2.828.775 4.932 4.932 0 002.165-2.724 9.864 9.864 0 01-3.127 1.195 4.916 4.916 0 00-8.384 4.482A13.944 13.944 0 011.671 3.149a4.916 4.916 0 001.523 6.574 4.897 4.897 0 01-2.229-.616v.061a4.919 4.919 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.937 4.937 0 004.604 3.417 9.868 9.868 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.054 0 14.002-7.496 14.002-13.986 0-.21 0-.423-.015-.634A9.935 9.935 0 0024 4.557z" />
+                </svg>
+              </a>
+              <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </a>
+              <a href="#" className="w-9 h-9 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 hover:text-emerald-400 hover:border-emerald-500/50 transition-all">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+                </svg>
+              </a>
+            </div>
           </div>
 
           {/* Platform Links */}
           <div className="flex flex-col items-start w-full">
-            <h2 className="font-bold text-white tracking-wide mb-6">Platform</h2>
+            <h2 className="font-bold text-white tracking-wide mb-6 text-sm uppercase">Platform</h2>
             <ul className="flex flex-col space-y-3 text-sm text-gray-400 font-medium">
-              <li><a href="#" className="hover:text-emerald-400 transition-colors">Curriculum</a></li>
-              {/* <li><a href="#" className="hover:text-emerald-400 transition-colors">Pricing Structure</a></li> */}
-              {/* <li><a href="#" className="hover:text-emerald-400 transition-colors">Outcomes</a></li>
-              <li><a href="#" className="hover:text-emerald-400 transition-colors">Educator Network</a></li> */}
+              <li><a href="/#courses" className="hover:text-emerald-400 transition-colors">Courses</a></li>
+              <li><a href="/#why-us" className="hover:text-emerald-400 transition-colors">Why Quantpact</a></li>
+              <li><a href="/login" className="hover:text-emerald-400 transition-colors">Student Login</a></li>
+              <li><a href="/register" className="hover:text-emerald-400 transition-colors">Get Started</a></li>
             </ul>
           </div>
 
-          {/* Resources Links */}
+          {/* Support & Legal */}
           <div className="flex flex-col items-start w-full">
-            <h2 className="font-bold text-white tracking-wide mb-6">Resources</h2>
+            <h2 className="font-bold text-white tracking-wide mb-6 text-sm uppercase">Support</h2>
             <ul className="flex flex-col space-y-3 text-sm text-gray-400 font-medium">
-              <li><a href="#" className="hover:text-emerald-400 transition-colors">Algorithmic Blog</a></li>
-              <li><a href="#" className="hover:text-emerald-400 transition-colors">Data Science Tools</a></li>
-              <li><a href="#" className="hover:text-emerald-400 transition-colors">Market Reports</a></li>
               <li><a href="#" className="hover:text-emerald-400 transition-colors">Help Center</a></li>
+              <li><a href="#" className="hover:text-emerald-400 transition-colors">Contact Us</a></li>
+              <li><a href="#" className="hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="hover:text-emerald-400 transition-colors">Terms of Service</a></li>
             </ul>
-          </div>
-
-          Newsletter / Legal
-          <div className="flex flex-col items-start w-full">
-            <h2 className="font-bold text-white tracking-wide mb-6">Stay Updated</h2>
-            <p className="text-sm text-gray-400 mb-4">
-              Weekly alpha signals and strategy breakdowns.
-            </p>
-            <form className="flex items-center gap-2 w-full" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Email address"
-                className="w-full bg-gray-800 border border-gray-700 text-white placeholder-gray-500 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-              />
-              <button className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg px-4 py-2.5 text-sm transition-colors shadow-sm">
-                Join
-              </button>
-            </form>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row items-center justify-between py-8 gap-4">
           <p className="text-xs text-gray-500 font-medium">
-            Copyright © {new Date().getFullYear()} Quantpact Ltd. All Rights Reserved.
+            © {new Date().getFullYear()} Quantpact. All rights reserved.
           </p>
-          <div className="flex items-center gap-6 text-xs text-gray-500 font-medium">
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-white transition-colors">Risk Disclaimer</a>
-          </div>
+          <p className="text-xs text-gray-600">
+            Built for traders who think in algorithms.
+          </p>
         </div>
       </div>
     </footer>
