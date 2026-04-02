@@ -6,6 +6,8 @@ import {
   getEnrolledStudentsData,
   updateRoleToEducator,
   getUploadPresignedUrl,
+  getCourseById,
+  updateCourse,
 } from "../controllers/educatorController.js";
 import upload from "../configs/multer.js";
 import { protect, educatorOnly } from "../middlewares/authMiddleware.js";
@@ -29,5 +31,9 @@ educatorRouter.get(
   "/enrolled-students",
   getEnrolledStudentsData
 );
+
+// New routes for course editing
+educatorRouter.get("/course/:courseId", getCourseById);
+educatorRouter.put("/update-course/:courseId", updateCourse);
 
 export default educatorRouter;

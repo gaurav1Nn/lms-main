@@ -3,17 +3,17 @@ import { AppContext } from "../../context/AppContext";
 import Loading from "../../components/student/Loading";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const MyCourses = () => {
-  const { currency, backendUrl, isEducator, testUserId } = useContext(AppContext);
+  const { currency, backendUrl, isEducator } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const [courses, setCourses] = useState(null);
 
   const fetchEducatorCourses = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/educator/courses", {
-        headers: { userId: testUserId },
-      });
+      const { data } = await axios.get(backendUrl + "/api/educator/courses");
 
       data.success && setCourses(data.courses);
     } catch (error) {
@@ -38,6 +38,7 @@ const MyCourses = () => {
               <th className="px-4 py-3 font-semibold truncate">Earnings</th>
               <th className="px-4 py-3 font-semibold truncate">Students</th>
               <th className="px-4 py-3 font-semibold truncate">Published On</th>
+              <th className="px-4 py-3 font-semibold truncate">Actions</th>
             </thead>
             <tbody className="text-sm text-gray-500">
               {courses.map((course) => (
@@ -65,6 +66,14 @@ const MyCourses = () => {
                   </td>
                   <td className="px-4 py-3">
                     {new Date(course.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => navigate(`/educator/edit-course/${course._id}`)}
+                      className="text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                    >
+                      Edit Course
+                    </button>
                   </td>
                 </tr>
               ))}

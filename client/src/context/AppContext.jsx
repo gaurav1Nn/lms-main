@@ -6,6 +6,16 @@ import { toast } from "react-toastify";
 
 export const AppContext = createContext();
 
+// Bulletproof: attach token from localStorage on EVERY outgoing request
+axios.defaults.withCredentials = true;
+axios.interceptors.request.use((config) => {
+  const t = localStorage.getItem("token");
+  if (t) {
+    config.headers.Authorization = `Bearer ${t}`;
+  }
+  return config;
+});
+
 export const AppContextProvider = (props) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const currency = import.meta.env.VITE_CURRENCY;
@@ -20,17 +30,7 @@ export const AppContextProvider = (props) => {
   const [isEducator, setIsEducator] = useState(false);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
 
-  // Setup Axios defaults & interceptor
-  axios.defaults.withCredentials = true;
-
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
-    }
-  }, [token]);
-
+  // Response interceptor: auto-refresh on 401
   useEffect(() => {
     const interceptor = axios.interceptors.response.use(
       (response) => response,
@@ -44,7 +44,6 @@ export const AppContextProvider = (props) => {
             if (data.success) {
               setToken(data.accessToken);
               localStorage.setItem("token", data.accessToken);
-              axios.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
               originalRequest.headers["Authorization"] = `Bearer ${data.accessToken}`;
               return axios(originalRequest);
             }

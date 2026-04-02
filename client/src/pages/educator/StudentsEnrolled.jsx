@@ -6,14 +6,13 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const StudentsEnrolled = () => {
-  const { backendUrl, testUserId, isEducator } = useContext(AppContext);
+  const { backendUrl, isEducator } = useContext(AppContext);
   const [enrolledStudents, setEnrolledStudents] = useState(null);
 
   const fetchEnrolledStudents = async () => {
     try {
       const { data } = await axios.get(
-        backendUrl + "/api/educator/enrolled-students",
-        { headers: { userId: testUserId } }
+        backendUrl + "/api/educator/enrolled-students"
       );
       if (data.success) {
         setEnrolledStudents(data.enrolledStudents.reverse());
