@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { assets } from "../../../assets/assets";
 
 const ResumeCard = ({ course, resumeChapter, resumeLecture, lectureCompleted, totalLectures, pct }) => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const ResumeCard = ({ course, resumeChapter, resumeLecture, lectureCompleted, to
         {/* Thumbnail */}
         <div className="flex-shrink-0">
           <img
-            src={course.courseThumbnail}
+            src={assets.course_thumbnail}
             alt={course.courseTitle}
             className="w-full md:w-48 h-32 object-cover rounded-lg border border-gray-200"
           />

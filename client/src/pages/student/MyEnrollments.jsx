@@ -129,6 +129,7 @@ import { Line } from "rc-progress";
 import Footer from "../../components/student/Footer";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { assets } from "../../assets/assets";
 
 const MyEnrollments = () => {
   const {
@@ -194,7 +195,7 @@ const MyEnrollments = () => {
               <tr key={index} className="border-b border-gray-500/20">
                 <td className="md:px-4 pl-2 md:pl-4 py-3 flex items-center space-x-3">
                   <img
-                    src={course.courseThumbnail}
+                    src={assets.course_thumbnail}
                     alt={course.courseTitle}
                     className="w-14 sm:w-24 md:w-28"
                   />

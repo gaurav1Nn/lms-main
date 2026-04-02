@@ -8,6 +8,7 @@ import {
   getUploadPresignedUrl,
   getCourseById,
   updateCourse,
+  deleteCourse,
 } from "../controllers/educatorController.js";
 import upload from "../configs/multer.js";
 import { protect, educatorOnly } from "../middlewares/authMiddleware.js";
@@ -35,5 +36,6 @@ educatorRouter.get(
 // New routes for course editing
 educatorRouter.get("/course/:courseId", getCourseById);
 educatorRouter.put("/update-course/:courseId", updateCourse);
+educatorRouter.delete("/delete-course/:courseId", deleteCourse);
 
 export default educatorRouter;
