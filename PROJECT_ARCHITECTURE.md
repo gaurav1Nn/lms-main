@@ -9,25 +9,24 @@
 5. [Backend Architecture](#backend-architecture)
 6. [Database Schema](#database-schema)
 7. [API Routes](#api-routes)
-8. [Authentication Flow](#authentication-flow)
-9. [Data Flow](#data-flow)
+8. [Data Flow](#data-flow)
+9. [Error Handling Strategy](#error-handling-strategy)
 10. [Third-Party Integrations](#third-party-integrations)
-11. [Environment Configuration](#environment-configuration)
-12. [Deployment](#deployment)
+11. [Known Technical Debt](#known-technical-debt)
+12. [Environment Configuration](#environment-configuration)
+13. [Deployment Details](#deployment-details)
 
 ---
 
-## Project Overview
+## 1. Project Overview
 
-**Quantpact** is a specialized EdTech platform for quantitative trading and high-frequency trading (HFT) built with the MERN stack. It's a comprehensive e-learning platform that connects educators with students, featuring:
+**Quantpact** is a specialized EdTech platform for quantitative trading and high-frequency trading (HFT) built with the MERN stack. It connects domain experts (educators) with technical students, featuring:
 
-- **Student Portal**: Browse courses, enroll, track progress, rate courses
-- **Educator Dashboard**: Create courses, manage content, view analytics, track enrollments
-- **Secure Authentication**: Clerk-based authentication with role management
-- **Payment Processing**: Stripe integration for course purchases
-- **Cloud Storage**: Cloudinary for image hosting, YouTube for video content
-
-**Live Demo**: https://lms-frontend-eosin-sigma.vercel.app/
+- **Student Portal**: Browse courses, enroll, track progress, rate courses via an institutional-grade fintech UI.
+- **Educator Dashboard**: Create courses, meticulously edit course content structure, view analytics, and track enrollments.
+- **Secure Authentication**: Custom local JWT-based system utilizing Access and HTTP-Only Refresh tokens.
+- **Payment Processing**: Stripe integration for seamless and secure checkout flow and webhook provisioning.
+- **Premium Content Security**: Rate-limited AWS S3 pre-signed URLs for secure video hosting, preventing unauthorized downloads.
 
 **Repository Structure**: `lms-main/`
 - `client/` - React frontend (Vite + Tailwind CSS)
@@ -35,7 +34,7 @@
 
 ---
 
-## Tech Stack
+## 2. Tech Stack
 
 ### Frontend
 
@@ -43,13 +42,10 @@
 |------------|---------|---------|
 | React | ^19.0.0 | UI framework |
 | React Router DOM | ^7.1.5 | Client-side routing |
-| @clerk/clerk-react | ^5.22.10 | Authentication |
 | Axios | ^1.8.1 | HTTP client |
 | Tailwind CSS | ^3.4.17 | Styling |
 | React Toastify | ^11.0.5 | Notifications |
 | Quill | ^2.0.3 | Rich text editor |
-| React YouTube | ^10.1.0 | Video player |
-| RC Progress | ^4.0.0 | Progress bars |
 | Vite | ^6.2.0 | Build tool |
 
 ### Backend
@@ -58,886 +54,348 @@
 |------------|---------|---------|
 | Express | ^4.21.2 | Web framework |
 | Mongoose | ^8.10.2 | MongoDB ODM |
-| @clerk/express | ^1.3.49 | Auth middleware |
-| Stripe | ^17.7.0 | Payment processing |
-| Cloudinary | ^2.5.1 | Image storage |
-| Multer | ^1.4.5-lts.1 | File uploads |
-| CORS | ^2.8.5 | Cross-origin requests |
-| Svix | ^1.42.0 | Webhook verification |
+| JSONWebToken (JWT) | ^9.0.2 | Authentication |
+| BcryptJS | ^2.4.3 | Password Hashing |
+| Stripe | ^17.7.0 | Payment processing via webhooks |
+| AWS SDK (S3) | ^3.x | Media storage & secured streaming |
+| Zod | ^3.x | Request payload schema validation |
+| CORS & Rate Limit | ^2.x, ^7.x | Security & abuse mitigation |
 
 ---
 
-## Directory Structure
+## 3. Directory Structure
 
 ```
 lms-main/
-├── client/                          # Frontend React Application
-│   ├── public/                      # Static assets
+├── client/                          
 │   ├── src/
-│   │   ├── assets/                  # Images, icons, logos (48 files)
-│   │   │   ├── *.svg               # Icons (play, download, user, etc.)
-│   │   │   ├── *.png               # Course thumbnails, profiles
-│   │   │   └── assets.js           # Asset exports
-│   │   │
-│   │   ├── components/              # Reusable UI components
-│   │   │   ├── student/            # Student-facing components
-│   │   │   │   ├── Navbar.jsx      # Navigation bar
-│   │   │   │   ├── Footer.jsx      # Footer component
-│   │   │   │   ├── Hero.jsx        # Landing page hero
-│   │   │   │   ├── Companies.jsx   # Partner companies showcase
-│   │   │   │   ├── CourseCard.jsx  # Individual course display
-│   │   │   │   ├── CoursesSection.jsx  # Course grid section
-│   │   │   │   ├── TestimonialsSection.jsx  # User testimonials
-│   │   │   │   ├── CallToAction.jsx  # CTA banner
-│   │   │   │   ├── Loading.jsx     # Loading spinner
-│   │   │   │   ├── SearchBar.jsx   # Course search
-│   │   │   │   └── Rating.jsx      # Star rating display
-│   │   │   │
-│   │   │   └── educator/           # Educator dashboard components
-│   │   │       ├── Navbar.jsx      # Educator nav
-│   │   │       ├── Sidebar.jsx     # Dashboard sidebar
-│   │   │       └── Footer.jsx      # Educator footer
-│   │   │
-│   │   ├── context/                 # Global state management
-│   │   │   └── AppContext.jsx      # React Context provider
-│   │   │
-│   │   ├── pages/                   # Page components (route-level)
-│   │   │   ├── student/            # Student pages
-│   │   │   │   ├── Home.jsx        # Landing page
-│   │   │   │   ├── CoursesList.jsx # All courses with filters
-│   │   │   │   ├── CourseDetails.jsx  # Single course view
-│   │   │   │   ├── MyEnrollments.jsx  # User's enrolled courses
-│   │   │   │   └── Player.jsx      # Course content player
-│   │   │   │
-│   │   │   └── educator/           # Educator pages
-│   │   │       ├── Educator.jsx    # Layout wrapper
-│   │   │       ├── Dashboard.jsx   # Stats & analytics
-│   │   │       ├── AddCourse.jsx   # Course creation form
-│   │   │       ├── MyCourses.jsx   # Educator's courses list
-│   │   │       └── StudentsEnrolled.jsx  # Student enrollment list
-│   │   │
-│   │   ├── App.jsx                  # Main app with routing
-│   │   ├── main.jsx                 # Entry point
-│   │   └── index.css                # Global styles (Tailwind)
-│   │
-│   ├── index.html                   # HTML template
-│   ├── package.json                 # Frontend dependencies
-│   ├── vite.config.js               # Vite configuration
-│   ├── tailwind.config.js           # Tailwind CSS config
-│   ├── postcss.config.js            # PostCSS config
-│   ├── eslint.config.js             # ESLint config
-│   └── vercel.json                  # Vercel deployment config
+│   │   ├── components/              # Reusable UI components (Student & Educator divisions)
+│   │   ├── context/                 # Global state management (`AppContext.jsx`)
+│   │   ├── pages/                   # Route-level components (`Player.jsx`, `EditCourse.jsx`)
+│   │   └── App.jsx                  # Main app component & Routing tree
 │
-└── server/                          # Backend Node.js Application
-    ├── configs/                     # Service configurations
-    │   ├── mongodb.js              # MongoDB connection setup
-    │   ├── cloudinary.js           # Cloudinary configuration
-    │   └── multer.js               # Multer file upload config
-    │
-    ├── controllers/                 # Business logic layer
-    │   ├── courseController.js     # Course CRUD operations
-    │   ├── userController.js       # User operations (purchase, progress)
-    │   ├── educatorController.js   # Educator-specific logic
-    │   └── webhooks.js             # Clerk & Stripe webhook handlers
-    │
-    ├── models/                      # Database schemas
-    │   ├── User.js                 # User schema
-    │   ├── Course.js               # Course schema with chapters/lectures
-    │   ├── Purchase.js             # Purchase transaction schema
-    │   └── CourseProgress.js       # Student progress tracking
-    │
-    ├── routes/                      # API route definitions
-    │   ├── courseRoute.js          # Course endpoints
-    │   ├── userRoutes.js           # User endpoints
-    │   └── educatorRoutes.js       # Educator endpoints
-    │
-    ├── middlewares/                 # Custom middleware
-    │   └── authMiddleware.js       # Educator role protection
-    │
-    ├── server.js                    # Express server entry point
-    ├── package.json                 # Backend dependencies
-    └── vercel.json                  # Vercel deployment config
+└── server/                          
+    ├── configs/                     
+    │   ├── mongodb.js              # Mongoose DB connection logic
+    │   ├── s3.js                   # AWS SDK configuration & presigned URL generators
+    │   └── multer.js               # Multer memory storage configuration
+    ├── controllers/                 # Core business logic (isolated from rote HTTP handling)
+    ├── middlewares/                 # JWT (`protect`), Role checking (`educatorOnly`), Rate limiting
+    ├── models/                      # User, Course, Purchase, CourseProgress Mongoose Schemas
+    ├── routes/                      # Route maps mapping endpoints to controllers
+    ├── validators/                  # Zod validation schemas (e.g., `courseValidator.js`)
+    └── server.js                    # Application entry point & webhook mounting
 ```
 
 ---
 
-## Frontend Architecture
+## 4. Frontend Architecture
 
-### Component Hierarchy
+### Core State Management (AppContext)
+Global app state and centralized API calls are managed via the React Context API (`client/src/context/AppContext.jsx`).
 
-```
-App.jsx (Root)
-│
-├── AppContext.Provider (Global State)
-│
-├── Routes
-│   │
-│   ├── Public Routes (Student)
-│   │   ├── Home.jsx
-│   │   │   └── Components: Navbar, Hero, Companies, CoursesSection, Testimonials, CTA, Footer
-│   │   │
-│   │   ├── CoursesList.jsx
-│   │   │   └── Components: Navbar, SearchBar, CourseCard[], Footer
-│   │   │
-│   │   ├── CourseDetails.jsx
-│   │   │   └── Components: Navbar, CourseInfo, ChapterList, Rating, Footer
-│   │   │
-│   │   ├── MyEnrollments.jsx
-│   │   │   └── Components: Navbar, EnrolledCourseCard[], Footer
-│   │   │
-│   │   └── Player.jsx
-│   │       └── Components: VideoPlayer, ChapterNavigation, ProgressTracker
-│   │
-│   └── Protected Routes (Educator)
-│       └── Educator.jsx (Layout)
-│           ├── Sidebar (Navigation)
-│           ├── Dashboard.jsx
-│           ├── AddCourse.jsx
-│           ├── MyCourses.jsx
-│           └── StudentsEnrolled.jsx
-```
+- **Auth State**: Manages `token`, `userData`, and active role (`isEducator` dynamically resolved from JWT payload/User lookup).
+- **Core Global Caching**: Preserves `allCourses` and `enrolledCourses` arrays in memory to prevent redundant heavy API requests.
 
-### State Management (AppContext)
-
-**File**: `client/src/context/AppContext.jsx`
-
-```javascript
-// Global State Variables
-const AppContext = createContext();
-
-State:
-├── allCourses          // Array of all available courses
-├── isEducator          // Boolean: user's educator role status
-├── enrolledCourses     // Array of user's enrolled courses
-├── userData            // User profile object
-├── currency            // Currency symbol (e.g., "$")
-└── backendUrl          // API base URL
-
-Helper Functions:
-├── calculateRating(course)         // Returns average rating (1-5)
-├── calculateChapterTime(chapter)   // Returns chapter duration in minutes
-├── calculateCourseDuration(course) // Returns total course duration
-├── calculateNoOfLectures(course)   // Returns total lecture count
-├── fetchAllCourses()               // GET /api/course/all
-├── fetchUserData()                 // GET /api/user/data
-└── fetchUserEnrolledCourses()      // GET /api/user/enrolled-courses
-```
-
-**Usage Pattern**:
-```javascript
-// Any component can access context
-const { allCourses, userData, isEducator, fetchAllCourses } = useContext(AppContext);
-```
-
-### Routing Configuration
-
-**File**: `client/src/App.jsx`
-
-```javascript
-Routes:
-├── /                          → Home (Landing page)
-├── /course-list               → CoursesList (All courses)
-├── /course-list/:input        → CoursesList (Search/category filter)
-├── /course/:id                → CourseDetails (Single course view)
-├── /my-enrollments            → MyEnrollments (User's courses)
-├── /player/:courseId          → Player (Course video player)
-├── /loading/:path             → Loading (Post-purchase redirect)
-└── /educator                  → Educator Dashboard Layout
-    ├── /educator              → Dashboard (Stats & earnings)
-    ├── /add-course            → AddCourse (Create new course)
-    ├── /my-courses            → MyCourses (Educator's courses)
-    └── /student-enrolled      → StudentsEnrolled (Enrollment list)
-```
+### Protected Player Mechanism
+- **Content Delivery**: The `Player.jsx` determines dynamically if a video is YouTube or S3.
+- **S3 Authorization**: If it's a secured video, the player posts to `/api/user/get-video-url`. The backend responds with a short-lived presigned URL, and the HTML5 `<video>` element enforces strict UX constraints (disabled right click, download disabled attribute).
 
 ---
 
-## Backend Architecture
+## 5. Backend Architecture
 
-### MVC Pattern
+### Design Pattern
+The backend is structured using a rigorous separation-of-concerns MVC approach.
 
+```mermaid
+graph LR
+    Req[Incoming HTTP] --> Router[Express Router]
+    Router --> Middleware[Auth/RateLimit]
+    Middleware --> Validator[Zod Validator]
+    Validator --> Controller[Business Logic]
+    Controller <--> Models[Mongoose Models]
+    Controller --> S3[AWS SDK]
+    Controller --> Res[JSON Response]
 ```
-Request → Routes → Controllers → Models → Database
-              ↓
-          Middleware (Auth, CORS)
-```
 
-### Middleware Stack
-
-1. **CORS**: Allows cross-origin requests from frontend
-2. **Clerk Middleware**: Validates JWT tokens on protected routes
-3. **Custom Auth Middleware**: Role-based access control (educator protection)
-4. **Multer**: Handles multipart/form-data for file uploads
-
-### Controller Responsibilities
-
-| Controller | Responsibilities |
-|------------|-----------------|
-| `courseController.js` | Fetch all courses, get single course details |
-| `userController.js` | Get user data, purchase courses, track progress, add ratings |
-| `educatorController.js` | Create courses, get educator stats, view enrolled students |
-| `webhooks.js` | Handle Clerk user sync, Stripe payment events |
+### Rate Limiting & Abuse Prevention
+We protect sensitive compute/bandwidth routes against scraping or DDOS.
+- **Implementation**: `videoUrlRateLimiter` applies to `POST /api/user/get-video-url`.
+- **Strategy**: Bounded at **30 requests per minute**.
+- **Key Dimension**: Throttled by the strictly authenticated User ID (`req.user._id`), intentionally bypassing IP/IPv6 grouping rules. This resolves NAT gateway issues while effectively crippling automated scrapers attempting distributed botnet scraping behind authenticated accounts.
 
 ---
 
-## Database Schema
+## 6. Database Schema
 
-### 1. User Model
+Mongoose strictly enforces relational connections via nested ObjectId population.
 
-**File**: `server/models/User.js`
-
+### 1. User Model (`User.js`)
+Handles auth identity, roles, and quick-lookup of student's purchased content.
 ```javascript
 {
-  _id: String,              // Clerk user ID (primary key)
-  name: String,
-  email: String,
-  imageUrl: String,         // Profile image URL from Clerk
-  enrolledCourses: [ObjectId],  // References: Course._id
-  timestamps: true          // createdAt, updatedAt
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true }, // Bcrypt hashed
+  imageUrl: { type: String }, 
+  role: { type: String, enum: ["student", "educator", "admin"], default: "student" },
+  refreshToken: { type: String }, // Used for long-lived session continuity
+  resetPasswordToken: { type: String },
+  resetPasswordExpiry: { type: Date },
+  enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: "Course" }],
+  timestamps: true
 }
 ```
 
-### 2. Course Model
-
-**File**: `server/models/Course.js`
-
+### 2. Course Model (`Course.js`)
+Stores hierarchical curriculum data (Chapters -> Lectures) and caching arrays.
 ```javascript
 {
   courseTitle: String,
-  courseDescription: String,      // HTML from Quill editor
-  courseThumbnail: String,        // Cloudinary URL
+  courseDescription: String,
+  courseThumbnail: String,  // S3 or public URL
   coursePrice: Number,
   isPublished: Boolean,
-  discount: Number,               // Percentage (0-100)
-  
-  courseContent: [Chapter],       // Embedded array
-  
-  courseRatings: [{
-    userId: String,               // Ref: User._id
-    rating: Number                // 1-5 stars
+  discount: Number,
+  courseContent: [{
+    chapterId: String,
+    chapterOrder: Number,
+    chapterTitle: String,
+    chapterContent: [{
+      lectureId: String,
+      lectureTitle: String,
+      lectureDuration: Number,
+      lectureUrl: String,   // Usually an S3 object key or YT ID
+      isPreviewFree: Boolean,
+      lectureOrder: Number
+    }]
   }],
-  
-  educator: String,               // Ref: User._id
-  enrolledStudents: [String],     // Ref: User._id
-  timestamps: true
-}
-
-// Chapter Schema (embedded in courseContent)
-Chapter = {
-  chapterId: String,              // Unique ID (uniqid)
-  chapterOrder: Number,           // Display order
-  chapterTitle: String,
-  chapterContent: [Lecture]
-}
-
-// Lecture Schema (embedded in chapterContent)
-Lecture = {
-  lectureId: String,              // Unique ID (uniqid)
-  lectureTitle: String,
-  lectureDuration: Number,        // Minutes
-  lectureUrl: String,             // YouTube video URL
-  isPreviewFree: Boolean,         // Allow preview without enrollment
-  lectureOrder: Number
-}
-```
-
-### 3. Purchase Model
-
-**File**: `server/models/Purchase.js`
-
-```javascript
-{
-  courseId: ObjectId,     // Ref: Course._id
-  userId: String,         // Ref: User._id
-  amount: Number,         // Price paid
-  status: Enum["pending", "completed", "failed"],
+  courseRatings: [{ userId: String, rating: Number }],
+  educator: { type: mongoose.Schema.Types.ObjectId },
+  enrolledStudents: [{ type: mongoose.Schema.Types.ObjectId }], 
   timestamps: true
 }
 ```
 
-### 4. CourseProgress Model
-
-**File**: `server/models/CourseProgress.js`
-
+### 3. Purchase Model (`Purchase.js`)
+Auditable ledger for financial transactions resolving via Stripe.
 ```javascript
 {
-  userId: String,         // Ref: User._id
-  courseId: String,       // Ref: Course._id
-  completed: Boolean,     // All lectures completed
-  lectureCompleted: [String]  // Array of completed lectureIds
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  amount: { type: Number, required: true }, // Captured value in integer cents
+  status: { type: String, enum: ["pending", "completed", "failed"], default: "pending" },
+  timestamps: true
+}
+```
+
+### 4. CourseProgress Model (`CourseProgress.js`)
+Decoupled schema specifically for progress computation avoiding `Course` schema bloat.
+```javascript
+{
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
+  completed: { type: Boolean, default: false }, // Has finished entire curriculum
+  lectureCompleted: [], // Array of string identifiers (lectureId)
 }
 ```
 
 ---
 
-## API Routes
+## 7. API Routes
 
-### Base URL: `/api`
+Base Prefix: `/api`
 
-### Course Routes (Public)
+### Auth Routes (`/auth/*`)
+| Method | Path | Middleware | Purpose |
+|---|---|---|---|
+| POST | `/register` | *None* | Zod-validated user registration. Returns JWT + Set-Cookie. |
+| POST | `/login` | *None* | Credential verification. Returns Access JWT + Set-Cookie Refresh JWT. |
+| GET | `/refresh` | *None* | Re-issues a short-lived access token by verifying the HTTP-Only cookie. |
+| POST | `/logout` | *None* | Nullifies Refresh JWT in DB and clears the browser cookie. |
+| GET | `/me` | `protect` | Validates active token and returns the caller's sanitized `User` profile. |
 
-**File**: `server/routes/courseRoute.js`
+### Course Routes - Public (`/course/*`)
+| Method | Path | Middleware | Purpose |
+|---|---|---|---|
+| GET | `/all` | *None* | Fetch all `isPublished=true` courses. Includes stripped lecture tree. |
+| GET | `/:id` | *None* | Fetch deep, unauthenticated preview details for a single course landing page. |
 
-| Method | Endpoint | Controller | Description |
-|--------|----------|------------|-------------|
-| GET | `/course/all` | `getAllCourses` | List all published courses |
-| GET | `/course/:id` | `getCourseId` | Get single course details |
+### User Tracking & Commerce (`/user/*`) Note: All routes use `protect`
+| Method | Path | Middleware | Purpose |
+|---|---|---|---|
+| GET | `/data` | `protect` | Alternative endpoint retrieving user data. |
+| GET | `/enrolled-courses` | `protect` | Populates the `enrolledCourses` array resolving to full `Course` objects. |
+| POST | `/purchase` | `protect` | Scaffolds a new `Purchase` intent, returning a Stripe Checkout Session URL. |
+| POST | `/update-course-progress` | `protect` | Appends a `lectureId` to the `CourseProgress` model array. |
+| POST | `/get-course-progress` | `protect` | Retrieves the User's array of completed lectures for a specific `courseId`. |
+| POST | `/get-video-url` | `protect` + `videoUrlRateLimiter` | Generates a 4-hour S3 Presigned `GET` URL for authorized streaming. |
+| POST | `/add-rating` | `protect` | Appends User rating to `Course.courseRatings` array. |
 
-### User Routes (Protected)
+### Educator Administration (`/educator/*`) Note: Most routes use `protect`, `educatorOnly`
+| Method | Path | Middleware | Purpose |
+|---|---|---|---|
+| GET | `/update-role` | `protect` | Self-serve role escalation from Student to Educator status. |
+| POST | `/add-course` | `protect`, `educatorOnly`, `multer` | Parses form-data, securely uploads thumbnails to S3, constructs the `Course`. |
+| GET | `/courses` | `protect`, `educatorOnly` | Fetches courses explicitly owned by `req.user._id`. |
+| GET | `/course/:courseId` | `protect`, `educatorOnly` | Fetches edit-focused granular config (pre-populate React form). |
+| PUT | `/update-course/:courseId` | `protect`, `educatorOnly` | Heavy structural overwrite payload utilizing strict `courseValidator.js` Zod checks. |
+| GET | `/dashboard` | `protect`, `educatorOnly` | Computes aggregate financial revenue, enrollments, and ratings for chart telemetry. |
 
-**File**: `server/routes/userRoutes.js`
-
-| Method | Endpoint | Controller | Description |
-|--------|----------|------------|-------------|
-| GET | `/user/data` | `getUserData` | Get user profile |
-| GET | `/user/enrolled-courses` | `userEnrolledCourses` | Get user's enrolled courses |
-| POST | `/user/purchase` | `purchaseCourse` | Initiate Stripe checkout |
-| POST | `/user/update-course-progress` | `updateUserCourseProgress` | Mark lecture as complete |
-| POST | `/user/get-course-progress` | `getUserCourseProgress` | Get progress for a course |
-| POST | `/user/add-rating` | `addUserRating` | Submit course rating |
-
-### Educator Routes (Protected - Educator Role Only)
-
-**File**: `server/routes/educatorRoutes.js`
-
-| Method | Endpoint | Controller | Description |
-|--------|----------|------------|-------------|
-| GET | `/educator/update-role` | `updateRoleToEducator` | Upgrade user to educator |
-| POST | `/educator/add-course` | `addCourse` | Create new course (with image upload) |
-| GET | `/educator/courses` | `getEducatorCourses` | Get educator's courses |
-| GET | `/educator/dashboard` | `educatorDashboard` | Get dashboard stats & earnings |
-| GET | `/educator/enrolled-students` | `getEnrolledStudentsData` | Get students enrolled in courses |
-
-### Webhook Routes
-
-**File**: `server/routes/` (inline in server.js)
-
-| Method | Endpoint | Handler | Description |
-|--------|----------|---------|-------------|
-| POST | `/clerk` | `clerkWebhooks` | Sync user data from Clerk |
-| POST | `/stripe` | `stripeWebhooks` | Handle Stripe payment events |
+### Webhooks (`/*`)
+| Method | Path | Middleware | Purpose |
+|---|---|---|---|
+| POST | `/stripe` | *Express RAW parser* | Confirms Stripe Event signature, transitions `Purchase` to completed, provisions the course. |
 
 ---
 
-## Authentication Flow
+## 8. Data Flow
 
-### 1. User Registration/Login
+### Authentication & Token Rotation Policy
+We have implemented **OAuth2-style Silent Token Refresh Strategy** to maintain highly secure sessions without persistent UX interruptions.
+1. `Access Token` lifetime: 15 Minutes. Used in `Authorization: Bearer <token>`.
+2. `Refresh Token` lifetime: 7 Days. Strictly an **HTTP-Only, Secure, SameSite=Strict** cookie.
+3. **Rotation**: When the React Axios client intercepts a `401 Unauthorized`, it invokes `GET /api/auth/refresh`. The server independently burns the used Refresh Token, re-issues a new Refresh Token into the cookie layer, generates a new Access Token payload, thus completing the security rotation without user prompt.
 
+### Stripe Webhook Provisioning Architecture
+Handling out-of-band asynchronous transaction confirmations is critical to prevent fraud.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant Stripe Checkout
+    participant Webhook Receiver
+
+    User->>Frontend: Clicks "Buy Now"
+    Frontend->>Backend: POST /api/user/purchase { courseId }
+    Backend->>Backend: Generate pending Purchase record
+    Backend->>Stripe Checkout: Create Stripe Session (w/ metadata.purchaseId)
+    Backend-->>Frontend: Return Stripe `data.url`
+    Frontend->>Stripe Checkout: Navigate Window
+    User->>Stripe Checkout: Completes CC Transaction
+    Stripe Checkout->>Backend: Server-to-Server Async POST /stripe
+    Webhook Receiver->>Webhook Receiver: Cryptographic Signature Verification
+    Webhook Receiver->>Backend: Lookup `purchaseId` from session metadata
+    Backend->>Backend: Update Purchase (status="completed")
+    Backend->>Backend: Dual-Update (User.enrolledCourses, Course.enrolledStudents)
 ```
-┌─────────────┐
-│   Frontend  │
-│  Clerk      │
-│  <UserButton/> │
-└──────┬──────┘
-       │ User signs in via Clerk UI
-       ▼
-┌─────────────┐
-│    Clerk    │
-│   Servers   │
-└──────┬──────┘
-       │ Triggers webhook
-       ▼
-┌─────────────┐
-│   Backend   │
-│ /clerk      │
-│ webhook     │
-└──────┬──────┘
-       │ Creates/updates User in MongoDB
-       ▼
-┌─────────────┐
-│   MongoDB   │
-│   User      │
-│  Collection │
-└─────────────┘
+
+---
+
+## 9. Error Handling Strategy
+
+Quantpact employs a highly standardized global constraint loop.
+
+**1. Response Format:** Every single intercepted or thrown error conforms to an explicit JSON envelope structure:
+```json
+{
+  "success": false,
+  "message": "Human readable technical reason"
+}
 ```
 
-### 2. Protected API Access
-
+**2. Standard Try/Catch Trap:**
+All controller methods are strictly blanketed in async closures:
 ```javascript
-// Frontend: Obtain JWT token
-const { getToken } = useAuth();
-const token = await getToken();
-
-// Include in API request
-axios.post('/api/user/purchase', 
-  { courseId }, 
-  { headers: { Authorization: `Bearer ${token}` } }
-);
-
-// Backend: Clerk middleware validates token
-app.use('/api/user', clerkMiddleware());
-
-// Controller: Access authenticated user
-const userId = req.auth.userId;
-```
-
-### 3. Role-Based Access Control
-
-```javascript
-// Educator protection middleware
-export const protectEducator = async (req, res, next) => {
-  const userId = req.auth.userId;
-  const response = await clerkClient.users.getUser(userId);
-  
-  if (response.publicMetadata.role !== "educator") {
-    return res.json({ success: false, message: "Unauthorized Access" });
+export const anyController = async (req, res) => {
+  try {
+    // Controller specific logic ...
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error(error); // Server log
+    res.status(500).json({ success: false, message: error.message }); // Client envelope
   }
-  next();
-};
-
-// Apply to educator routes
-educatorRouter.use(protectEducator);
+}
 ```
 
-### 4. Role Elevation (Student → Educator)
-
-```
-User clicks "Become Educator"
-        ↓
-GET /api/educator/update-role (with JWT)
-        ↓
-Backend: clerkClient.users.updateUserMetadata(userId, {
-  publicMetadata: { role: "educator" }
-})
-        ↓
-Clerk updates user metadata
-        ↓
-Frontend updates isEducator state in AppContext
-        ↓
-User can access /educator routes
-```
-
----
-
-## Data Flow
-
-### Student Enrollment Flow
-
-```
-1. Browse Courses
-   GET /api/course/all → Display CourseCard[]
-
-2. View Course Details
-   GET /api/course/:id → Display course info, chapters, ratings
-
-3. Initiate Purchase
-   POST /api/user/purchase
-   ├── Create Purchase record (status: "pending")
-   ├── Create Stripe Checkout Session
-   └── Return Stripe URL
-
-4. Redirect to Stripe
-   window.location.href = stripeUrl
-
-5. Complete Payment
-   Stripe processes payment
-        ↓
-   Stripe webhook → POST /stripe
-        ↓
-   Update Purchase.status = "completed"
-   Add course to User.enrolledCourses
-   Add user to Course.enrolledStudents
-
-6. Post-Purchase Redirect
-   Navigate to /loading/my-enrollments
-        ↓
-   Fetch enrolled courses
-        ↓
-   Display in MyEnrollments.jsx
-
-7. Access Course Content
-   Click course → /player/:courseId
-        ↓
-   Verify enrollment
-        ↓
-   Display video lectures
-```
-
-### Course Creation Flow (Educator)
-
-```
-1. Fill Course Form (AddCourse.jsx)
-   ├── Course title, description, price
-   ├── Quill editor → HTML description
-   ├── Add chapters with lectures
-   └── Upload thumbnail image
-
-2. Submit Form
-   POST /api/educator/add-course
-   Content-Type: multipart/form-data
-
-3. Backend Processing
-   ├── Multer handles file upload
-   ├── Cloudinary.upload() → thumbnail URL
-   ├── Create Course document:
-   │   ├── Generate unique IDs for chapters/lectures
-   │   ├── Set educator ID from auth
-   │   └── Save to MongoDB
-   └── Return success response
-
-4. Frontend Response
-   ├── Show success toast
-   └── Reset form
-```
-
-### Progress Tracking Flow
-
-```
-1. Watch Lecture (Player.jsx)
-   Display YouTube video
-
-2. Mark Complete
-   POST /api/user/update-course-progress
-   { courseId, lectureId }
-
-3. Backend Update
-   Find/Create CourseProgress document
-   Add lectureId to lectureCompleted[]
-   Check if all lectures completed → set completed: true
-
-4. Update UI
-   Progress bar updates
-   Checkmark appears on lecture
-```
-
----
-
-## Third-Party Integrations
-
-### 1. Clerk (Authentication)
-
-**Purpose**: User authentication, management, and webhooks
-
-**Frontend**:
+**3. Zod Payload Validation Failure:**
+Validation logic halts execution gracefully at the controller ingress point.
 ```javascript
-import { ClerkProvider, SignedIn, UserButton } from "@clerk/clerk-react";
-
-<ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
-  <SignedIn>
-    <UserButton />
-  </SignedIn>
-</ClerkProvider>
-```
-
-**Backend**:
-```javascript
-import { clerkMiddleware, clerkClient } from "@clerk/express";
-
-// Protect routes
-app.use("/api/user", clerkMiddleware());
-
-// Access user
-const userId = req.auth.userId;
-
-// Update metadata
-await clerkClient.users.updateUserMetadata(userId, {...});
-```
-
-**Webhooks**: `user.created`, `user.updated`, `user.deleted`
-
----
-
-### 2. Stripe (Payments)
-
-**Purpose**: Process course purchases
-
-**Frontend**:
-```javascript
-const { data } = await axios.post(
-  backendUrl + "/api/user/purchase",
-  { courseId },
-  { headers: { Authorization: `Bearer ${token}` } }
-);
-window.location.href = data.url; // Stripe checkout
-```
-
-**Backend**:
-```javascript
-const session = await stripe.checkout.sessions.create({
-  line_items: [{
-    price_data: {
-      product_data: { name: courseTitle },
-      unit_amount: Math.round(price * 100), // cents
-      currency: "usd"
-    },
-    quantity: 1
-  }],
-  mode: "payment",
-  success_url: `${frontendUrl}/loading/my-enrollments`,
-  cancel_url: `${frontendUrl}/course-list`
-});
-```
-
-**Webhooks**: `checkout.session.completed`, `checkout.session.expired`
-
----
-
-### 3. Cloudinary (Image Storage)
-
-**Status**: *Deprecated for Course Thumbnails (Moving to BLOB storage)*
-
-**Purpose**: Previously used to store course thumbnails, currently being phased out for a simpler BLOB or local file upload system in `addCourse` and `editCourse` flows.
-
----
-
-### 4. YouTube (Video Hosting)
-
-**Purpose**: Host course lecture videos
-
-**Frontend**:
-```javascript
-import YouTube from "react-youtube";
-
-<YouTube
-  videoId={getVideoId(lectureUrl)}
-  opts={{ width: "100%", height: "100%" }}
-/>
-```
-
-**Embed URLs**: Videos embedded via YouTube iframe API
-
----
-
-### 5. Quill (Rich Text Editor)
-
-**Purpose**: Create formatted course descriptions
-
-**Frontend**:
-```javascript
-import Quill from "quill";
-
-const quillRef = useRef();
-
-<Quill
-  ref={quillRef}
-  theme="snow"
-  modules={{ toolbar: [["bold", "italic"], ["list"], ["link"]] }}
-/>
-
-// Get HTML
-const description = quillRef.current.root.innerHTML;
+const { success, data, error } = schema.safeParse(req.body);
+if (!success) {
+  return res.status(400).json({ success: false, message: error.issues[0].message });
+}
 ```
 
 ---
 
-## Environment Configuration
+## 10. Third-Party Integrations
 
-### Server `.env`
+### AWS S3 Conventions & Presigned Operations
+Cloudinary was aggressively deprecated in favor of scalable AWS SDK logic.
 
+- **Bucket Hierarchy Constraint Guidelines**:
+We attempt to partition keys safely to avoid bucket traversal entropy:
+```text
+/courses/<course_id>/thumbnail_<timestamp>.jpg  // Public structural images
+/courses/<course_id>/lectures/<uuid>.mp4        // Secured video payloads
+```
+- **The Presigned Magic**: S3 buckets remain `Block All Public Access`. Videos are legally accessed via URL params embedding scoped IAM signatures computed on the fly by `generatePresignedGetUrl()`.
+
+---
+
+## 11. Known Technical Debt
+
+As developers heavily iterating on architecture, the following items are acknowledged bottlenecks that **must** be addressed before scaling past 100,000 monthly active users:
+
+1. **Dual Enrollment Tracking Splintering**:
+   - Currently, a purchase blindly manipulates `User.enrolledCourses.push(...)` AND `Course.enrolledStudents.push(...)`.
+   - *Risk*: A mid-transaction server fault could successfully push to the user array, but crash before updating the course array, destroying relational integrity.
+   - *Future Fix*: Shift entirely to the `Purchase` collection as the single source of truth and compute arrays downstream using MongoDB aggregation pipelines.
+
+2. **Unbounded 16MB Document Sizing Warning**:
+   - The `Course.enrolledStudents` array grows boundlessly. A highly viral course gaining >500k students will result in the `Course` document breaching the hard physical 16MB MongoDB BSON size cap.
+   - *Future Fix*: Immediately deprecate embedding large arrays in parent definitions. Query relationships via index constraints instead.
+
+3. **Index Deficiencies**:
+   - The system is doing frequent collection scans searching for courses (`GET /course/all`). `isPublished` Boolean attributes currently lack B-Tree index specifications, resulting in linearly degrading O(N) read latency.
+
+---
+
+## 12. Environment Configuration
+
+### Client (`client/.env`)
 ```env
-# Server
-PORT=5000
-
-# Database
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/lms
-
-# Clerk
-CLERK_SECRET_KEY=sk_test_...
-CLERK_WEBHOOK_SECRET=whsec_...
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Cloudinary
-CLOUDINARY_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_SECRET_KEY=your_api_secret
-
-# Currency
-CURRENCY=usd
-```
-
-### Client `.env`
-
-```env
-# Clerk
-VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
-
-# Backend
 VITE_BACKEND_URL=http://localhost:5000
-
-# Display
 VITE_CURRENCY=$
 ```
 
+### Server (`server/.env`)
+```env
+PORT=5000
+MONGODB_URI=mongodb+srv://<auth_user>:<auth_pass>@cluster.mongodb.net/quantpact
+JWT_SECRET=super_secret_access_string (Must be strong 256bit entropy)
+JWT_EXPIRY=15m
+REFRESH_TOKEN_SECRET=super_secret_refresh_sequence
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=XXX_IAM_POLICY_KEYS_XXX
+AWS_SECRET_ACCESS_KEY=XXX_IAM_POLICY_KEYS_XXX
+S3_BUCKET_NAME=quantpact-assets
+STRIPE_SECRET_KEY=sk_test_... // Skips CC decline checks
+STRIPE_WEBHOOK_SECRET=whsec_... // Used for Express signature validations
+```
+
 ---
 
-## Deployment
+## 13. Deployment Details
 
-### Frontend (Vercel)
+### Infrastructure Orchestration
+The app is designed to run statelessly across any node.js hosting provider natively, currently optimized for **Vercel Serverless Function** executions.
 
-**File**: `client/vercel.json`
-
-```json
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ]
-}
-```
-
-**Environment Variables**:
-- `VITE_CLERK_PUBLISHABLE_KEY`
-- `VITE_BACKEND_URL` (production backend URL)
-- `VITE_CURRENCY`
-
-**Deploy**:
-```bash
-cd client
-npm run build
-vercel deploy
-```
-
-### Backend (Vercel)
-
-**File**: `server/vercel.json`
-
+### Vercel Serverless Configurations & Challenges
+**File:** `server/vercel.json`
 ```json
 {
   "version": 2,
-  "builds": [{
-    "src": "server.js",
-    "use": "@vercel/node"
-  }],
-  "routes": [{
-    "src": "/(.*)",
-    "dest": "server.js"
-  }]
+  "builds": [{ "src": "server.js", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": "server.js" }]
 }
 ```
 
-**Environment Variables**:
-- `PORT` (Vercel sets this automatically)
-- `MONGODB_URI`
-- `CLERK_SECRET_KEY`
-- `CLERK_WEBHOOK_SECRET`
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `CLOUDINARY_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_SECRET_KEY`
-- `CURRENCY`
-
-**Deploy**:
-```bash
-cd server
-vercel deploy
-```
-
----
-
-## Key Features Summary
-
-### Student Features
-- ✅ Browse and search courses by category
-- ✅ View detailed course information with free preview lectures
-- ✅ Secure payment via Stripe
-- ✅ Track learning progress with visual progress bars
-- ✅ Rate completed courses (1-5 stars)
-- ✅ Access enrolled courses anytime
-- ✅ Responsive mobile-friendly design
-
-### Educator Features
-- ✅ Upgrade from student to educator role
-- ✅ Create courses with rich text descriptions (Quill)
-- ✅ Upload course thumbnails (Cloudinary)
-- ✅ Organize content into chapters and lectures
-- ✅ Set pricing and discounts
-- ✅ View dashboard analytics (earnings, enrollments, ratings)
-- ✅ Track student enrollments per course
-
-### Technical Highlights
-- 🔐 JWT authentication with Clerk
-- 🛡️ Protected routes with role-based access control
-- 🔄 Webhook-driven data synchronization (Clerk, Stripe)
-- ☁️ Cloud-based storage (MongoDB Atlas, Cloudinary)
-- ⚡ Fast builds with Vite
-- 📱 Responsive design with Tailwind CSS
-- 🎥 Video hosting via YouTube
-- 💳 Payment processing with Stripe
-
----
-
-## Quick Start Guide
-
-### Prerequisites
-- Node.js 18+
-- MongoDB Atlas account
-- Clerk account
-- Stripe account
-- Cloudinary account
-
-### Installation
-
-```bash
-# Clone repository
-git clone <repo-url>
-cd lms-main
-
-# Install frontend
-cd client
-npm install
-
-# Install backend
-cd ../server
-npm install
-```
-
-### Running Locally
-
-```bash
-# Terminal 1: Backend
-cd server
-npm run dev  # Runs on http://localhost:5000
-
-# Terminal 2: Frontend
-cd client
-npm run dev  # Runs on http://localhost:5173
-```
-
-### Build for Production
-
-```bash
-# Frontend
-cd client
-npm run build
-
-# Backend (Vercel handles this automatically)
-```
-
----
-
-## Project Statistics
-
-- **Frontend Files**: ~30 React components
-- **Backend Files**: ~15 API endpoints
-- **Database Models**: 4 (User, Course, Purchase, CourseProgress)
-- **Third-Party Services**: 5 (Clerk, Stripe, Cloudinary, YouTube, MongoDB)
-- **Lines of Code**: ~10,000+ (estimated)
-
----
-
-## Recent Upgrades & Current Project Status (March 2026)
-
-### 1. Rebranding to Quantpact
-The LMS platform has been successfully rebranded to **Quantpact**.
-- **Focus**: Specialized EdTech platform for quantitative trading and high-frequency trading (HFT).
-- **Changes**: Comprehensive text-only rebranding across the frontend (global titles, hero section copy, trust indicators, testimonials, and mock course data) reflecting a professional, institutional-grade fintech aesthetic.
-
-### 2. Educator Dashboard Redesign
-- Modernized the educator dashboard UI to match the high-fidelity fintech design.
-- Implemented updated metric cards, a refined sidebar, and a structured course creation form.
-- ensured responsiveness and visual consistency with the new brand aesthetic.
-
-### 3. Architecture Updates & Edit Course Functionality
-- **Cloudinary Removal**: We have removed Cloudinary integration from the backend for course thumbnails (e.g., in the `addCourse` flow) to simplify image handling and move towards BLOB storage.
-- **Edit Course Feature Planned**: We are actively planning and implementing the Edit Course functionality. 
-  - Utilizing a `PUT /update-course` API endpoint.
-  - Enacting strict validation procedures (Zod) and educator ownership security checks.
-  - Ensuring existing lecture/chapter IDs remain stable during edits to preserve student progress.
-
-### Current Status
-- **Phase**: Active development.
-- **Immediate Focus**: Implementing the "Edit Course" frontend form and securely handling the backend API for course modifications.
-
----
-
-*Documentation updated for LLM context understanding - March 2026*
+*Architectural Warnings:*
+1. **Cold Starts**: MongoDB Atlas connection pools (`configs/mongodb.js`) will incur ~1-3s connection latency overhead when a Vercel function goes idle and wakes. First login delays are expected on the Free or Hobby Vercel tiers.
+2. **Bandwidth Limitations**: Multer parses `multipart/form-data` into RAM inside memory buffers before transferring to S3. Vercel enforces a 4.5MB payload constraint on standard API endpoints. Any video uploaded directly exceeding 4.5MB via standard `POST` *will* crash via 413 Payload Too Large HTTP faults. 
+*(For large video files >5MB, the platform must transition exclusively to S3 Direct multipart Presigned PUT logic on the client-side rather than passing buffers through the backend layer.)*
