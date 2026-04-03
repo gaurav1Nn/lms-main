@@ -399,3 +399,115 @@ The app is designed to run statelessly across any node.js hosting provider nativ
 1. **Cold Starts**: MongoDB Atlas connection pools (`configs/mongodb.js`) will incur ~1-3s connection latency overhead when a Vercel function goes idle and wakes. First login delays are expected on the Free or Hobby Vercel tiers.
 2. **Bandwidth Limitations**: Multer parses `multipart/form-data` into RAM inside memory buffers before transferring to S3. Vercel enforces a 4.5MB payload constraint on standard API endpoints. Any video uploaded directly exceeding 4.5MB via standard `POST` *will* crash via 413 Payload Too Large HTTP faults. 
 *(For large video files >5MB, the platform must transition exclusively to S3 Direct multipart Presigned PUT logic on the client-side rather than passing buffers through the backend layer.)*
+
+---
+
+## 14. Course Curriculum (Reference)
+
+This section contains the curriculum format and content for the course to provide context for LLM tools on what is being built.
+
+### QUANTPACT - COMPLETE MASTER CURRICULUM
+**The Holy Document: All 20 Weeks, Every Day, Every Topic**
+**Version:** 2.0 Complete
+**Last Updated:** February 2026
+**Total Duration:** 20 weeks | 100 days | 50+ hours of video content
+
+#### TABLE OF CONTENTS
+1. Program Overview
+2. Weekly Structure Template
+3. Segment 1: Finance & Trading (Weeks 1-4)
+4. Segment 2: Mathematics & Statistics (Weeks 5-8)
+5. Segment 3: Python Programming (Weeks 9-12)
+6. Segment 4: C++ Low-Latency (Weeks 13-18)
+7. Capstone & Career (Weeks 19-20)
+8. Assessment Framework
+9. Resource Appendix
+
+#### PROGRAM OVERVIEW
+**Course Statistics**
+- Total Duration: 20 weeks (5 months)
+- Daily Commitment: 30-min video + 1-3 hours practice
+- Total Video Content: 50 hours (100 days × 30 mins)
+- Total Learning Hours: 200-250 hours
+- Projects: 20 weekly + 4 segment + 1 capstone
+- Quizzes: 100+ throughout program
+- Target Outcome: Job-ready HFT developer
+
+**Delivery Method**
+- Each day: ONE 30-minute professional video
+- Videos split into 3-6 segments (5-10 mins each) for LMS
+- Each segment: concept → demo → practice
+- Immediate quizzes after each video
+- Weekly projects cumulate learning
+
+**Four Pillars**
+1. **Finance & Trading (Weeks 1-4)**: Market microstructure, order books, exchange mechanisms, trading strategies
+2. **Mathematics & Statistics (Weeks 5-8)**: Probability, time series, stochastic calculus, machine learning
+3. **Python Programming (Weeks 9-12)**: Data analysis, backtesting, strategy development, deployment
+4. **C++ Low-Latency (Weeks 13-18)**: Memory management, multithreading, networking, production HFT systems
+
+#### WEEKLY STRUCTURE TEMPLATE
+**Standard Week Pattern**
+- **Monday**: Core concept introduction + theory
+- **Tuesday**: Deep dive + practical examples
+- **Wednesday**: Code implementation + demonstrations
+- **Thursday**: Advanced topics + optimization
+- **Friday**: Review + quiz + project
+
+**Each Day Includes:**
+- 30-minute video lecture
+- 3-6 code demonstrations
+- 10-15 quiz questions
+- Hands-on assignment
+- Reading materials
+
+#### SEGMENT 1: FINANCE & TRADING FUNDAMENTALS
+*Duration: 4 weeks | 20 days | 10 hours video*
+
+**WEEK 1: Introduction to Financial Markets & Market Microstructure**
+
+- **Day 1 (Monday)**: Welcome to HFT & Market Basics
+  - Video Segments: Course Intro & What is HFT?, Financial Markets 101, Basic Trading Terminology, Quiz & Next Steps
+  - Assignment: Watch live order book on Binance/Deribit, document observations, Quiz
+  - Learning Outcomes: Define HFT, Identify major asset classes, Understand basic P&L calculation
+
+- **Day 2 (Tuesday)**: The Order Book - Heart of Every Exchange
+  - Video Segments: Marketplace Analogy, Anatomy of an Order Book, How Trades Actually Happen, Python Demo: Building an Order Book
+  - Code Deliverable: `OrderBook` class in Python
+  - Assignment: Complete `match_order()` method, visualize order book data, track spread
+  - Learning Outcomes: Explain order book functions, build a basic order book in Python
+
+- **Day 3 (Wednesday)**: Order Types & Market Impact
+  - Video Segments: Advanced Order Types, Market Impact & Slippage, Python Demo: Simulating Market Impact, Real Trading Examples
+  - Code Deliverable: `execute_market_order()`, `plot_impact_curve()`
+  - Assignment: Complete market impact simulator, create impact curve visualization
+
+- **Day 4 (Thursday)**: Market Microstructure Deep Dive
+  - Video Segments: Market Depth & Liquidity, Bid-Ask Spread Dynamics, Market Data Levels, Dark Pools & Hidden Liquidity
+  - Assignment: Analyze real Level 2 data, monitor spread dynamics, identify potential iceberg orders
+
+- **Day 5 (Friday)**: Week 1 Review & Real-Time Order Book Monitor
+  - Video Segments: Key Concepts Recap, Building a Real-Time Order Book Monitor
+  - Code Deliverable: `RealTimeOrderBook` class with websocket connection
+  - Week 1 Project: Build complete real-time order book monitoring system
+  - Week 1 Assessment: 25-question comprehensive quiz
+
+**WEEK 2: Exchange Mechanisms & Trading Strategies**
+
+- **Day 1 (Monday)**: Exchange Architecture & Types
+- **Day 2 (Tuesday)**: Market Making Strategy Fundamentals
+  - Code Deliverable: `SimpleMarketMaker` Python class
+- **Day 3 (Wednesday)**: Statistical Arbitrage Introduction
+  - Code Deliverable: `find_cointegrated_pairs()` and `PairsTradingStrategy` class
+- **Day 4 (Thursday)**: Momentum & Mean Reversion Strategies
+  - Code Deliverable: `MomentumStrategy` and `MeanReversionStrategy` classes
+- **Day 5 (Friday)**: Trading Strategy Evaluation & Week 2 Review
+  - Week 2 Project: Build portfolio of 3 strategies (Market maker, Pairs trading, Momentum/mean reversion)
+
+**WEEK 3: Advanced Market Making & Liquidity Provision**
+
+- **Day 1 (Monday)**: Advanced Market Making Models (Avellaneda-Stoikov Model)
+  - Code Deliverable: `AvellanedaStoikovMM` Python class
+- **Day 2 (Tuesday)**: Order Flow Toxicity & Adverse Selection
+  - Code Deliverable: `calculate_vpin()` and `ToxicityAwareMM` class
+- **Day 3 (Wednesday)**: Multi-Venue Market Making
